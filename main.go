@@ -1,14 +1,9 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 
 	//"log"
-
-	"os"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -21,13 +16,13 @@ func failOnError(err error, msg string) {
 
 func main() {
 
-	router := gin.Default()
+	// router := gin.Default()
 
-	os.Setenv("PORT", "8081")
+	// os.Setenv("PORT", "8081")
 
-	if err := router.Run(fmt.Sprintf(":%s", os.Getenv("PORT"))); err != nil {
-		log.Fatal().Err(err).Msg("Startup failed")
-	}
+	// if err := router.Run(fmt.Sprintf(":%s", os.Getenv("PORT"))); err != nil {
+	// 	log.Fatal().Err(err).Msg("Startup failed")
+	// }
 
 	marketsProcessor()
 
