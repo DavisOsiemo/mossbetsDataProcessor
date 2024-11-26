@@ -69,7 +69,16 @@ func marketsProcessor() {
 	)
 	failOnError(err, "Failed to register a consumer")
 
-	fmt.Println("Consumed markets: ", msgs)
+	var forever chan struct{}
+
+	go func() {
+		for d := range msgs {
+			log.Printf(" [x] %s", d.Body)
+		}
+	}()
+
+	log.Printf(" [*] Waiting for logs. To exit press CTRL+C")
+	<-forever
 
 	// var forever chan struct{}
 
@@ -131,7 +140,16 @@ func resultsProcessor() {
 	)
 	failOnError(err, "Failed to register a consumer")
 
-	fmt.Println("Consumed results: ", msgs)
+	var forever chan struct{}
+
+	go func() {
+		for d := range msgs {
+			log.Printf(" [x] %s", d.Body)
+		}
+	}()
+
+	log.Printf(" [*] Waiting for logs. To exit press CTRL+C")
+	<-forever
 }
 
 func fixturesProcessor() {
@@ -167,5 +185,14 @@ func fixturesProcessor() {
 	)
 	failOnError(err, "Failed to register a consumer")
 
-	fmt.Println("Consumed fixture status: ", msgs)
+	var forever chan struct{}
+
+	go func() {
+		for d := range msgs {
+			log.Printf(" [x] %s", d.Body)
+		}
+	}()
+
+	log.Printf(" [*] Waiting for logs. To exit press CTRL+C")
+	<-forever
 }
