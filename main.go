@@ -45,7 +45,7 @@ func marketsProcessor() {
 
 	q, err := ch.QueueDeclare(
 		"MARKETS_QUEUE", // name
-		false,           // durable
+		true,            // durable
 		false,           // delete when unused
 		false,           // exclusive
 		false,           // no-wait
