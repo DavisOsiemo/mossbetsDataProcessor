@@ -23,17 +23,17 @@ func main() {
 
 	router := gin.Default()
 
-	marketsProcessor()
-
-	resultsProcessor()
-
-	fixturesProcessor()
-
 	os.Setenv("PORT", "8081")
 
 	if err := router.Run(fmt.Sprintf(":%s", os.Getenv("PORT"))); err != nil {
 		log.Fatal().Err(err).Msg("Startup failed")
 	}
+
+	marketsProcessor()
+
+	resultsProcessor()
+
+	fixturesProcessor()
 
 }
 
