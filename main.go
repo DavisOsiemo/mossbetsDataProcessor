@@ -53,6 +53,25 @@ func marketsProcessor() {
 	)
 	failOnError(err, "Failed to declare a queue")
 
+	err = ch.ExchangeDeclare(
+		"MARKETS_EXCHANGE", // name
+		"direct",           // type
+		true,               // durable
+		false,              // auto-deleted
+		false,              // internal
+		false,              // no-wait
+		nil,                // arguments
+	)
+	failOnError(err, "Failed to declare an exchange: MARKETS_EXCHANGE")
+
+	err = ch.QueueBind(
+		"MARKETS_QUEUE",    // queue name
+		"MARKETS_ROUTE",    // routing key
+		"MARKETS_EXCHANGE", // exchange
+		false,
+		nil)
+	failOnError(err, "Failed to bind route: MARKETS_ROUTE")
+
 	msgs, err := ch.Consume(
 		q.Name, // queue
 		"",     // consumer
