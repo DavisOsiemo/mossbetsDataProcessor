@@ -28,11 +28,11 @@ func main() {
 		log.Printf("Error initializing RabbitMQ: %v", err)
 	}
 
-	marketsProcessor(ch)
+	marketsConsumer(ch)
 
-	resultsProcessor(ch)
+	resultsConsumer(ch)
 
-	fixturesProcessor(ch)
+	fixturesConsumer(ch)
 
 	defer conn.Close()
 	defer ch.Close()
@@ -53,7 +53,7 @@ func initRabbitMQ() (*amqp.Connection, *amqp.Channel, error) {
 	return conn, ch, nil
 }
 
-func marketsProcessor(ch *amqp.Channel) {
+func marketsConsumer(ch *amqp.Channel) {
 
 	q, err := ch.QueueDeclare(
 		"MARKETS_QUEUE", // name
@@ -108,7 +108,7 @@ func marketsProcessor(ch *amqp.Channel) {
 
 }
 
-func resultsProcessor(ch *amqp.Channel) {
+func resultsConsumer(ch *amqp.Channel) {
 
 	q, err := ch.QueueDeclare(
 		"RESULTS_QUEUE", // name
@@ -163,7 +163,7 @@ func resultsProcessor(ch *amqp.Channel) {
 
 }
 
-func fixturesProcessor(ch *amqp.Channel) {
+func fixturesConsumer(ch *amqp.Channel) {
 
 	q, err := ch.QueueDeclare(
 		"FIXTURE_QUEUE", // name
