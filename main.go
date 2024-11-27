@@ -27,14 +27,15 @@ func main() {
 	if err != nil {
 		log.Printf("Error initializing RabbitMQ: %v", err)
 	}
-	defer conn.Close()
-	defer ch.Close()
 
 	marketsProcessor(ch)
 
 	resultsProcessor(ch)
 
 	fixturesProcessor(ch)
+
+	defer conn.Close()
+	defer ch.Close()
 
 }
 
