@@ -30,8 +30,6 @@ func main() {
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
-	fixturesConsumer(conn)
-
 	marketsConsumer(conn)
 
 	resultsConsumer(conn)
@@ -154,62 +152,4 @@ func resultsConsumer(conn *amqp.Connection) {
 	log.Printf(" [*] Waiting for Result Set logs. To exit press CTRL+C")
 	<-forever
 
-}
-
-func fixturesConsumer(conn *amqp.Connection) {
-
-	ch, err := conn.Channel()
-	failOnError(err, "Failed to open a channel")
-	defer ch.Close()
-
-	q, err := ch.QueueDeclare(
-		"FIXTURE_QUEUE", // name
-		true,            // durable
-		false,           // delete when unused
-		false,           // exclusive
-		false,           // no-wait
-		nil,             // arguments
-	)
-	failOnError(err, "Failed to declare a queue")
-
-	err = ch.ExchangeDeclare(
-		"FIXTURE_EXCHANGE", // name
-		"direct",           // type
-		true,               // durable
-		false,              // auto-deleted
-		false,              // internal
-		false,              // no-wait
-		nil,                // arguments
-	)
-	failOnError(err, "Failed to declare an exchange: FOOTBALL_EXCHANGE")
-
-	err = ch.QueueBind(
-		"FIXTURE_QUEUE",    // queue name
-		"FOOTBALL_ROUTE",   // routing key
-		"FIXTURE_EXCHANGE", // exchange
-		false,
-		nil)
-	failOnError(err, "Failed to bind route: FOOTBALL_ROUTE")
-
-	msgs, err := ch.Consume(
-		q.Name, // queue
-		"",     // consumer
-		true,   // auto-ack
-		false,  // exclusive
-		false,  // no-local
-		false,  // no-wait
-		nil,    // args
-	)
-	failOnError(err, "Failed to register a Fixtures consumer")
-
-	var forever chan struct{}
-
-	go func() {
-		for d := range msgs {
-			log.Printf(" [x] %s", d.Body)
-		}
-	}()
-
-	log.Printf(" [*] Waiting for Fixtures logs. To exit press CTRL+C")
-	<-forever
 }
