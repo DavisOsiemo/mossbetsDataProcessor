@@ -30,22 +30,19 @@ func main() {
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
-	ch, err := conn.Channel()
-	failOnError(err, "Failed to open a channel")
-	defer ch.Close()
+	marketsConsumer(conn)
 
-	marketsConsumer(ch)
+	resultsConsumer(conn)
 
-	resultsConsumer(ch)
-
-	fixturesConsumer(ch)
-
-	defer conn.Close()
-	defer ch.Close()
+	fixturesConsumer(conn)
 
 }
 
-func marketsConsumer(ch *amqp.Channel) {
+func marketsConsumer(conn *amqp.Connection) {
+
+	ch, err := conn.Channel()
+	failOnError(err, "Failed to open a channel")
+	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
 		"MARKETS_QUEUE", // name
@@ -100,7 +97,11 @@ func marketsConsumer(ch *amqp.Channel) {
 
 }
 
-func resultsConsumer(ch *amqp.Channel) {
+func resultsConsumer(conn *amqp.Connection) {
+
+	ch, err := conn.Channel()
+	failOnError(err, "Failed to open a channel")
+	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
 		"RESULTS_QUEUE", // name
@@ -121,7 +122,7 @@ func resultsConsumer(ch *amqp.Channel) {
 		false,              // no-wait
 		nil,                // arguments
 	)
-	failOnError(err, "Failed to declare an exchange: MARKETS_EXCHANGE")
+	failOnError(err, "Failed to declare an exchange: RESULTS_EXCHANGE")
 
 	err = ch.QueueBind(
 		"RESULTS_QUEUE",    // queue name
@@ -155,7 +156,11 @@ func resultsConsumer(ch *amqp.Channel) {
 
 }
 
-func fixturesConsumer(ch *amqp.Channel) {
+func fixturesConsumer(conn *amqp.Connection) {
+
+	ch, err := conn.Channel()
+	failOnError(err, "Failed to open a channel")
+	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
 		"FIXTURE_QUEUE", // name
