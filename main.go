@@ -23,10 +23,16 @@ func main() {
 	// }
 	// Initialize RabbitMQ connection and channel
 
-	conn, ch, err := initRabbitMQ()
-	if err != nil {
-		log.Printf("Error initializing RabbitMQ: %v", err)
-	}
+	// Function to initialize the connection and channel
+
+	conn, err := amqp.Dial("amqp://liden:lID3n@10.132.0.28:5672/")
+	//conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	failOnError(err, "Failed to connect to RabbitMQ")
+	defer conn.Close()
+
+	ch, err := conn.Channel()
+	failOnError(err, "Failed to open a channel")
+	defer ch.Close()
 
 	marketsConsumer(ch)
 
@@ -37,20 +43,6 @@ func main() {
 	defer conn.Close()
 	defer ch.Close()
 
-}
-
-// Function to initialize the connection and channel
-func initRabbitMQ() (*amqp.Connection, *amqp.Channel, error) {
-	conn, err := amqp.Dial("amqp://liden:lID3n@10.132.0.28:5672/")
-	//conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-	failOnError(err, "Failed to connect to RabbitMQ")
-	defer conn.Close()
-
-	ch, err := conn.Channel()
-	failOnError(err, "Failed to open a channel")
-	defer ch.Close()
-
-	return conn, ch, nil
 }
 
 func marketsConsumer(ch *amqp.Channel) {
