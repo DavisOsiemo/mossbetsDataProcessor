@@ -3,8 +3,6 @@ package main
 import (
 	"github.com/rs/zerolog/log"
 
-	//"log"
-
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -23,17 +21,25 @@ func main() {
 	// if err := router.Run(fmt.Sprintf(":%s", os.Getenv("PORT"))); err != nil {
 	// 	log.Fatal().Err(err).Msg("Startup failed")
 	// }
+	// Initialize RabbitMQ connection and channel
 
-	marketsProcessor()
+	conn, ch, err := initRabbitMQ()
+	if err != nil {
+		log.Printf("Error initializing RabbitMQ: %v", err)
+	}
+	defer conn.Close()
+	defer ch.Close()
 
-	resultsProcessor()
+	marketsProcessor(ch)
 
-	fixturesProcessor()
+	resultsProcessor(ch)
+
+	fixturesProcessor(ch)
 
 }
 
-func marketsProcessor() {
-
+// Function to initialize the connection and channel
+func initRabbitMQ() (*amqp.Connection, *amqp.Channel, error) {
 	conn, err := amqp.Dial("amqp://liden:lID3n@10.132.0.28:5672/")
 	//conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
@@ -42,6 +48,11 @@ func marketsProcessor() {
 	ch, err := conn.Channel()
 	failOnError(err, "Failed to open a channel")
 	defer ch.Close()
+
+	return conn, ch, nil
+}
+
+func marketsProcessor(ch *amqp.Channel) {
 
 	q, err := ch.QueueDeclare(
 		"MARKETS_QUEUE", // name
@@ -96,15 +107,7 @@ func marketsProcessor() {
 
 }
 
-func resultsProcessor() {
-	conn, err := amqp.Dial("amqp://liden:lID3n@10.132.0.28:5672/")
-	//conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-	failOnError(err, "Failed to connect to RabbitMQ")
-	defer conn.Close()
-
-	ch, err := conn.Channel()
-	failOnError(err, "Failed to open a channel")
-	defer ch.Close()
+func resultsProcessor(ch *amqp.Channel) {
 
 	q, err := ch.QueueDeclare(
 		"RESULTS_QUEUE", // name
@@ -159,15 +162,7 @@ func resultsProcessor() {
 
 }
 
-func fixturesProcessor() {
-	conn, err := amqp.Dial("amqp://liden:lID3n@10.132.0.28:5672/")
-	//conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
-	failOnError(err, "Failed to connect to RabbitMQ")
-	defer conn.Close()
-
-	ch, err := conn.Channel()
-	failOnError(err, "Failed to open a channel")
-	defer ch.Close()
+func fixturesProcessor(ch *amqp.Channel) {
 
 	q, err := ch.QueueDeclare(
 		"FIXTURE_QUEUE", // name
