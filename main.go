@@ -91,39 +91,12 @@ func marketsProcessor() {
 		}
 	}()
 
-	log.Printf(" [*] Waiting for logs. To exit press CTRL+C")
+	log.Printf(" [*] Waiting for Market Set logs. To exit press CTRL+C")
 	<-forever
 
-	// var forever chan struct{}
-
-	// var upgrader = websocket.Upgrader{
-	// 	ReadBufferSize:  1024,
-	// 	WriteBufferSize: 1024,
-	// }
-
-	// upgrader.CheckOrigin = func(r *http.Request) bool { return true }
-
-	// ws, err := upgrader.Upgrade(c.Writer, c.Request, nil)
-	// if err != nil {
-	// 	fmt.Println(err.Error())
-	// 	return
-	// }
-	// defer ws.Close()
-
-	// go func() {
-	// 	for d := range msgs {
-	// 		log.Printf("Received a message: %s", d.Body)
-	// 		ws.WriteMessage(websocket.TextMessage, []byte(d.Body))
-
-	// 	}
-	// }()
-
-	// log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
-	// <-forever
 }
 
 func resultsProcessor() {
-
 	conn, err := amqp.Dial("amqp://liden:lID3n@10.132.0.28:5672/")
 	//conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
@@ -135,7 +108,7 @@ func resultsProcessor() {
 
 	q, err := ch.QueueDeclare(
 		"RESULTS_QUEUE", // name
-		false,           // durable
+		true,            // durable
 		false,           // delete when unused
 		false,           // exclusive
 		false,           // no-wait
@@ -143,6 +116,25 @@ func resultsProcessor() {
 	)
 	failOnError(err, "Failed to declare a queue")
 
+	err = ch.ExchangeDeclare(
+		"RESULTS_EXCHANGE", // name
+		"direct",           // type
+		true,               // durable
+		false,              // auto-deleted
+		false,              // internal
+		false,              // no-wait
+		nil,                // arguments
+	)
+	failOnError(err, "Failed to declare an exchange: MARKETS_EXCHANGE")
+
+	err = ch.QueueBind(
+		"RESULTS_QUEUE",    // queue name
+		"RESULTS_ROUTE",    // routing key
+		"RESULTS_EXCHANGE", // exchange
+		false,
+		nil)
+	failOnError(err, "Failed to bind route: RESULTS_ROUTE")
+
 	msgs, err := ch.Consume(
 		q.Name, // queue
 		"",     // consumer
@@ -152,7 +144,7 @@ func resultsProcessor() {
 		false,  // no-wait
 		nil,    // args
 	)
-	failOnError(err, "Failed to register a consumer")
+	failOnError(err, "Failed to register Result Set consumer")
 
 	var forever chan struct{}
 
@@ -162,12 +154,12 @@ func resultsProcessor() {
 		}
 	}()
 
-	log.Printf(" [*] Waiting for logs. To exit press CTRL+C")
+	log.Printf(" [*] Waiting for Result Set logs. To exit press CTRL+C")
 	<-forever
+
 }
 
 func fixturesProcessor() {
-
 	conn, err := amqp.Dial("amqp://liden:lID3n@10.132.0.28:5672/")
 	//conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
@@ -175,18 +167,36 @@ func fixturesProcessor() {
 
 	ch, err := conn.Channel()
 	failOnError(err, "Failed to open a channel")
-
 	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
-		"FIXTURES_QUEUE", // name
-		false,            // durable
-		false,            // delete when unused
-		false,            // exclusive
-		false,            // no-wait
-		nil,              // arguments
+		"FIXTURE_QUEUE", // name
+		true,            // durable
+		false,           // delete when unused
+		false,           // exclusive
+		false,           // no-wait
+		nil,             // arguments
 	)
 	failOnError(err, "Failed to declare a queue")
+
+	err = ch.ExchangeDeclare(
+		"FIXTURE_EXCHANGE", // name
+		"direct",           // type
+		true,               // durable
+		false,              // auto-deleted
+		false,              // internal
+		false,              // no-wait
+		nil,                // arguments
+	)
+	failOnError(err, "Failed to declare an exchange: FOOTBALL_EXCHANGE")
+
+	err = ch.QueueBind(
+		"FIXTURE_QUEUE",    // queue name
+		"FOOTBALL_ROUTE",   // routing key
+		"FIXTURE_EXCHANGE", // exchange
+		false,
+		nil)
+	failOnError(err, "Failed to bind route: FOOTBALL_ROUTE")
 
 	msgs, err := ch.Consume(
 		q.Name, // queue
@@ -197,7 +207,7 @@ func fixturesProcessor() {
 		false,  // no-wait
 		nil,    // args
 	)
-	failOnError(err, "Failed to register a consumer")
+	failOnError(err, "Failed to register a Fixtures consumer")
 
 	var forever chan struct{}
 
@@ -207,6 +217,6 @@ func fixturesProcessor() {
 		}
 	}()
 
-	log.Printf(" [*] Waiting for logs. To exit press CTRL+C")
+	log.Printf(" [*] Waiting for Fixtures logs. To exit press CTRL+C")
 	<-forever
 }
