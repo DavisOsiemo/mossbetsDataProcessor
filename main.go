@@ -30,11 +30,11 @@ func main() {
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
+	fixturesConsumer(conn)
+
 	marketsConsumer(conn)
 
 	resultsConsumer(conn)
-
-	fixturesConsumer(conn)
 
 }
 
