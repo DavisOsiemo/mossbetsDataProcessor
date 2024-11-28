@@ -19,6 +19,8 @@ func failOnError(err error, msg string) {
 
 func main() {
 
+	MysqlDbConnect()
+
 	conn, err := amqp.Dial("amqp://liden:lID3n@10.132.0.28:5672/")
 	//conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
