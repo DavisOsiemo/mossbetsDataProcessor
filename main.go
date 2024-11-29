@@ -158,7 +158,7 @@ func marketsConsumer(conn *amqp.Connection) {
 				if dbError != nil {
 					log.Fatal().Err(dbError).Msg("Failed to insert MarketSet to DB")
 				}
-				defer dbResult.LastInsertId()
+				fmt.Println(dbResult)
 
 				for _, selections := range markets.Selections {
 					odds, err := json.Marshal(markets.Selections)
@@ -217,7 +217,7 @@ func marketsConsumer(conn *amqp.Connection) {
 							fmt.Println("Failed to insert Odds to DB: ", oddsError.Error())
 							//log.Fatal().Err(oddsError).Msg("Failed to insert Odds to DB")
 						}
-						defer oddsResult.LastInsertId()
+						fmt.Println(oddsResult)
 
 						results3, err := Db.Query("SELECT odds_live.market_id, odds_live.outcome_id, odds_live.outcome_name, odds_live.alias, odds_live.odds, odds_live.odd_status FROM fixture LEFT JOIN odds_live ON fixture.match_id=odds_live.match_id WHERE fixture.match_id=? ORDER BY CASE WHEN odds_live.market_name='Match Result' then 0 else 1 end, date desc", marketSet.FixtureId)
 						if err != nil {
@@ -258,7 +258,7 @@ func marketsConsumer(conn *amqp.Connection) {
 								if oddsError != nil {
 									fmt.Println(oddsError)
 								}
-								defer oddsResult.LastInsertId()
+								fmt.Println(oddsResult)
 							}
 						}
 						fmt.Println("Market Set Added to DB ", markets.Id)
