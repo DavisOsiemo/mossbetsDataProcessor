@@ -261,7 +261,7 @@ func marketsConsumer(conn *amqp.Connection) {
 								defer oddsResult.LastInsertId()
 							}
 						}
-						fmt.Println("Market Set Added to DB ", string(markets.Id))
+						fmt.Println("Market Set Added to DB ", markets.Id)
 						//log.Info().Msg("Market Set Added to DB " + markets.MarketType.Name + string(markets.Id))
 
 					}
