@@ -265,6 +265,8 @@ func marketsConsumer(conn *amqp.Connection) {
 					}
 				}
 			}
+			log.Printf("Done")
+			d.Ack(false)
 		}
 	}()
 
