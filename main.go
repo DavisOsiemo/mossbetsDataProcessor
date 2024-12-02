@@ -132,7 +132,7 @@ func marketsConsumer(conn *amqp.Connection) {
 	msgs, err := ch.Consume(
 		q.Name, // queue
 		"",     // consumer
-		true,   // auto-ack
+		false,  // auto-ack
 		false,  // exclusive
 		false,  // no-local
 		false,  // no-wait
@@ -265,9 +265,6 @@ func marketsConsumer(conn *amqp.Connection) {
 					}
 				}
 			}
-
-			log.Printf("Done")
-			d.Ack(false)
 		}
 	}()
 
