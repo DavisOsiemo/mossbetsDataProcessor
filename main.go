@@ -257,14 +257,14 @@ func marketsConsumer(conn *amqp.Connection) {
 								fmt.Println("Odds updated in DB:", string(oddsObjMarsh))
 							}
 						}
-						fmt.Println("Market Set Added to DB ", markets.Id)
+						fmt.Println("Markets Added to DB for Fixture: ", markets.Id)
 						//log.Info().Msg("Market Set Added to DB " + markets.MarketType.Name + string(markets.Id))
 
 					}
 				}
 			}
 
-			fmt.Println("This is a decoded message: ", marketSet.Markets)
+			fmt.Println("Market set consumed from Queue: ", marketSet.Markets)
 		}
 	}()
 
