@@ -257,7 +257,7 @@ func marketsConsumer(conn *amqp.Connection) {
 								if oddsError != nil {
 									fmt.Println(oddsError)
 								}
-								fmt.Println("Markets Updated in DB for Fixture: ", marketSet.FixtureId, " Time: ", time.Now())
+								fmt.Println("Markets Updated in DB for Fixture: ", marketSet.FixtureId, " Time: ", time.Now(), " Market_id: ", markets.Id)
 								// fmt.Println("Markets Updated in DB for Fixture: ", marketSet.FixtureId, ": ", markets.Name, ": ", oddsObj.Outcome_id, ": ", oddsObj.Odds)
 							}
 						}
