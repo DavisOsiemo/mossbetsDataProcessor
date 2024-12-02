@@ -153,7 +153,7 @@ func marketsConsumer(conn *amqp.Connection) {
 				panic(err)
 			}
 
-			fmt.Println("Consumed the market: ", marketSet.FixtureId)
+			fmt.Println("Consumed market from Queue for Fixture: ", marketSet.FixtureId)
 
 			for _, markets := range marketSet.Markets {
 
