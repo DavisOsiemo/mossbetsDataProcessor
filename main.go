@@ -264,7 +264,7 @@ func marketsConsumer(conn *amqp.Connection) {
 				}
 			}
 
-			fmt.Println("Market set consumed from Queue: ", marketSet.Markets)
+			//fmt.Println("Market set consumed from Queue: ", marketSet.Markets)
 		}
 	}()
 
