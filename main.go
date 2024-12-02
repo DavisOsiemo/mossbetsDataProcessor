@@ -402,7 +402,7 @@ func marketsConsumer(conn *amqp.Connection) {
 									if err != nil {
 										fmt.Println("Could not Update markets: ", err.Error())
 									}
-									fmt.Println("Markets Batched and Updated in DB for Fixture: ", marketSet.FixtureId, " Time: ", time.Now(), " Market_id: ", markets.Id, "Odds change: ", oddsObj.Odds)
+									fmt.Println("Markets Batched and Updated in DB for Fixture: ", marketSet.FixtureId, " Time: ", time.Now(), " Selection_id: ", oddsObj.Outcome_id, "Odds change: ", oddsObj.Odds)
 								}
 
 								// _, oddsError := Db.Exec("UPDATE odds_live SET oddsObject=? WHERE market_id=? AND outcome_id=?", oddsObjMarsh, market_id, outcome_id_marsh)
