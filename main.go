@@ -288,11 +288,10 @@ func marketsConsumer(conn *amqp.Connection) {
 				// 	log.Fatal().Err(dbError).Msg("Failed to insert MarketSet to DB")
 				// }
 
-				records := []Highlights_market{
+				highlights_market := []Highlights_market{
 					{markets.MarketType.Id, markets.TradingStatus, markets.MarketType.Name, markets.MarketType.Name, 1},
 				}
-
-				batchInsert(records)
+				batchInsert(highlights_market)
 
 				for _, selections := range markets.Selections {
 					odds, err := json.Marshal(markets.Selections)
@@ -343,12 +342,6 @@ func marketsConsumer(conn *amqp.Connection) {
 						mstTime := t.In(loc)
 
 						dateVal := mstTime.Format(time.DateTime)
-
-						_, oddsError := Db.Exec("INSERT INTO odds_live (outcome_id, odd_status, outcome_name, match_id, odds, prevous_odds, direction, producer_name, market_id, producer_id, producer_status, market_name, time_stamp, processing_delays, status, status_name, alias) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE odds=?, prevous_odds=?, producer_id=?, alias=?, market_name=?, status=?, status_name=?, odd_status=?", vals.Id, vals.TradingStatus, vals.Name, marketSet.FixtureId, vals.Decimal, vals.Decimal, selections.Range.High, markets.MarketType.Name, markets.MarketType.Id, vals.Id, 1, market_name_alias, dateVal, 1, markets.InPlay, markets.TradingStatus, alias, vals.Decimal, vals.Decimal, vals.Id, alias, market_name_alias, markets.InPlay, markets.TradingStatus, vals.TradingStatus)
-						if oddsError != nil {
-							fmt.Println("Failed to insert Odds to DB: ", oddsError.Error())
-							//log.Fatal().Err(oddsError).Msg("Failed to insert Odds to DB")
-						}
 
 						odds := []Odds{
 							{vals.Id, vals.TradingStatus, vals.Name, marketSet.FixtureId, vals.Decimal, vals.Decimal, selections.Range.High, markets.MarketType.Name, markets.MarketType.Id, vals.Id, 1, market_name_alias, dateVal, 1, markets.InPlay, markets.TradingStatus, alias},
