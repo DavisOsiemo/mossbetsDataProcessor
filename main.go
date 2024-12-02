@@ -144,6 +144,7 @@ func marketsConsumer(conn *amqp.Connection) {
 
 	go func() {
 		for d := range msgs {
+
 			log.Printf(" [x] %s", d.Body)
 
 			var marketSet MarketSet
@@ -254,7 +255,7 @@ func marketsConsumer(conn *amqp.Connection) {
 								if oddsError != nil {
 									fmt.Println(oddsError)
 								}
-								fmt.Println("Odds updated in DB:", string(oddsObjMarsh))
+								//fmt.Println("Odds updated in DB:", string(oddsObjMarsh))
 							}
 						}
 						fmt.Println("Markets Added to DB for Fixture: ", markets.Id)
