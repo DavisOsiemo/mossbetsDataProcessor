@@ -84,6 +84,60 @@ type Outcome_obj struct {
 	Odd_status   string  `json:"odd_status"`
 }
 
+type Highlights_market struct {
+	Market_id int    `json:"market_id"`
+	Specifier string `json:"specifier"`
+	Name      string `json:"name"`
+	Alias     string `json:"alias"`
+	Priority  int    `json:"priority"`
+}
+
+// Batch insert function
+func batchInsert(records []Highlights_market) error {
+	// Prepare the batch insert query template
+	stmt, err := Db.Prepare("INSERT INTO highlights_market (market_id, specifier, name, alias, priority) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE alias=VALUES(alias), market_id=VALUES(market_id)")
+	if err != nil {
+		fmt.Println("Error preparing statement: ", err)
+	}
+	defer stmt.Close()
+
+	// Start a transaction
+	tx, err := Db.Begin()
+	if err != nil {
+		fmt.Println("Error starting transaction: ", err)
+	}
+	defer tx.Rollback() // Rollback if the function returns an error
+
+	// Execute the batch insert in chunks (e.g., 100 records per chunk)
+	batchSize := 100
+	for i := 0; i < len(records); i += batchSize {
+		end := i + batchSize
+		if end > len(records) {
+			end = len(records)
+		}
+
+		// Prepare a batch insert for this chunk of records
+		args := make([]interface{}, 0, (end-i)*2)
+		for _, record := range records[i:end] {
+			args = append(args, record.Market_id, record.Specifier, record.Name, record.Alias, record.Priority)
+		}
+
+		// Execute the batch insert
+		_, err := tx.Stmt(stmt).Exec(args...)
+		if err != nil {
+			fmt.Println("Error executing batch insert: ", err)
+		}
+	}
+
+	// Commit the transaction
+	if err := tx.Commit(); err != nil {
+		fmt.Println("Error committing transaction: ", err)
+	}
+
+	fmt.Printf("Inserted highlight markets%d records successfully.\n", len(records))
+	return nil
+}
+
 func GroupByProperty[T any, K comparable](items []T, getProperty func(T) K) map[K][]T {
 	grouped := make(map[K][]T)
 
@@ -160,10 +214,16 @@ func marketsConsumer(conn *amqp.Connection) {
 
 			for _, markets := range marketSet.Markets {
 
-				_, dbError := Db.Exec("INSERT INTO highlights_market (market_id, specifier, name, alias, priority) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE alias=?, market_id=?", markets.MarketType.Id, markets.TradingStatus, markets.MarketType.Name, markets.MarketType.Name, 1, markets.MarketType.Name, markets.MarketType.Id)
-				if dbError != nil {
-					log.Fatal().Err(dbError).Msg("Failed to insert MarketSet to DB")
+				// _, dbError := Db.Exec("INSERT INTO highlights_market (market_id, specifier, name, alias, priority) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE alias=?, market_id=?", markets.MarketType.Id, markets.TradingStatus, markets.MarketType.Name, markets.MarketType.Name, 1, markets.MarketType.Name, markets.MarketType.Id)
+				// if dbError != nil {
+				// 	log.Fatal().Err(dbError).Msg("Failed to insert MarketSet to DB")
+				// }
+
+				records := []Highlights_market{
+					{markets.MarketType.Id, markets.TradingStatus, markets.MarketType.Name, markets.MarketType.Name, 1},
 				}
+
+				batchInsert(records)
 
 				for _, selections := range markets.Selections {
 					odds, err := json.Marshal(markets.Selections)
