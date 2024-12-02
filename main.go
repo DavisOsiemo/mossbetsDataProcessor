@@ -147,6 +147,9 @@ func marketsConsumer(conn *amqp.Connection) {
 
 			// log.Printf(" [x] %s", d.Body)
 
+			log.Printf("Done")
+			d.Ack(false)
+
 			var marketSet MarketSet
 
 			if err := json.Unmarshal(d.Body, &marketSet); err != nil {
@@ -265,8 +268,6 @@ func marketsConsumer(conn *amqp.Connection) {
 					}
 				}
 			}
-			log.Printf("Done")
-			d.Ack(false)
 		}
 	}()
 
