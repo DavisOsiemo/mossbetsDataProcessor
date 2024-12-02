@@ -395,7 +395,6 @@ func marketsConsumer(conn *amqp.Connection) {
 								if err != nil {
 									fmt.Println("Unable to Prepare Odds Object statement")
 								}
-								stmt.Close()
 
 								// Execute the update for each record in the data slice
 								for _, d := range data {
@@ -403,7 +402,7 @@ func marketsConsumer(conn *amqp.Connection) {
 									if err != nil {
 										fmt.Println("Could not Update markets: ", err.Error())
 									}
-									fmt.Println("Markets Batched and Updated in DB for Fixture: ", marketSet.FixtureId, " Time: ", time.Now(), " Market_id: ", markets.Id, "Odds update: ", oddsObj.Odds)
+									fmt.Println("Markets Batched and Updated in DB for Fixture: ", marketSet.FixtureId, " Time: ", time.Now(), " Market_id: ", markets.Id, "Odds change: ", oddsObj.Odds)
 								}
 
 								// _, oddsError := Db.Exec("UPDATE odds_live SET oddsObject=? WHERE market_id=? AND outcome_id=?", oddsObjMarsh, market_id, outcome_id_marsh)
