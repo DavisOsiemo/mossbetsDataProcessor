@@ -250,11 +250,11 @@ func marketsConsumer(conn *amqp.Connection) {
 									fmt.Println("Odds not persisted ")
 								}
 
-								oddsResult, oddsError := Db.Exec("UPDATE odds_live SET oddsObject=? WHERE market_id=? AND outcome_id=?", oddsObjMarsh, market_id, outcome_id_marsh)
+								_, oddsError := Db.Exec("UPDATE odds_live SET oddsObject=? WHERE market_id=? AND outcome_id=?", oddsObjMarsh, market_id, outcome_id_marsh)
 								if oddsError != nil {
 									fmt.Println(oddsError)
 								}
-								fmt.Println(oddsResult)
+								fmt.Println("Odds updated in DB")
 							}
 						}
 						fmt.Println("Market Set Added to DB ", markets.Id)
