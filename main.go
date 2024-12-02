@@ -145,13 +145,15 @@ func marketsConsumer(conn *amqp.Connection) {
 	go func() {
 		for d := range msgs {
 
-			log.Printf(" [x] %s", d.Body)
+			// log.Printf(" [x] %s", d.Body)
 
 			var marketSet MarketSet
 
 			if err := json.Unmarshal(d.Body, &marketSet); err != nil {
 				panic(err)
 			}
+
+			fmt.Println("Consumed the market: ", marketSet)
 
 			for _, markets := range marketSet.Markets {
 
