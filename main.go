@@ -383,34 +383,33 @@ func marketsConsumer(conn *amqp.Connection) {
 									fmt.Println("Odds not persisted")
 								}
 
-								data := []struct {
-									OddsObject []byte `json:"oddsObject"`
-									Market_id  int    `json:"market_id"`
-									Outcome_id []byte `json:"outcome_id"`
-								}{
-									{oddsObjMarsh, market_id, outcome_id_marsh},
-								}
-								// Prepare the UPDATE statement
-								stmt, err := Db.Prepare("UPDATE odds_live SET oddsObject=? WHERE market_id=? AND outcome_id=?")
-								if err != nil {
-									fmt.Println("Unable to Prepare Odds Object statement")
-								}
-
-								// Execute the update for each record in the data slice
-								for _, d := range data {
-									_, err := stmt.Exec(d.OddsObject, d.Market_id, d.Outcome_id)
-									if err != nil {
-										fmt.Println("Could not Update markets: ", err.Error())
-									}
-									fmt.Println("Markets Batched and Updated in DB for Fixture: ", marketSet.FixtureId, " Time: ", time.Now(), " Selection_id: ", oddsObj.Outcome_id, "Odds change: ", oddsObj.Odds)
-								}
-
-								// _, oddsError := Db.Exec("UPDATE odds_live SET oddsObject=? WHERE market_id=? AND outcome_id=?", oddsObjMarsh, market_id, outcome_id_marsh)
-								// if oddsError != nil {
-								// 	fmt.Println(oddsError)
+								// data := []struct {
+								// 	OddsObject []byte `json:"oddsObject"`
+								// 	Market_id  int    `json:"market_id"`
+								// 	Outcome_id []byte `json:"outcome_id"`
+								// }{
+								// 	{oddsObjMarsh, market_id, outcome_id_marsh},
 								// }
-								// fmt.Println("Markets Updated in DB for Fixture: ", marketSet.FixtureId, " Time: ", time.Now(), " Market_id: ", markets.Id)
-								// fmt.Println("Markets Updated in DB for Fixture: ", marketSet.FixtureId, ": ", markets.Name, ": ", oddsObj.Outcome_id, ": ", oddsObj.Odds)
+								// // Prepare the UPDATE statement
+								// stmt, err := Db.Prepare("UPDATE odds_live SET oddsObject=? WHERE market_id=? AND outcome_id=?")
+								// if err != nil {
+								// 	fmt.Println("Unable to Prepare Odds Object statement")
+								// }
+
+								// // Execute the update for each record in the data slice
+								// for _, d := range data {
+								// 	_, err := stmt.Exec(d.OddsObject, d.Market_id, d.Outcome_id)
+								// 	if err != nil {
+								// 		fmt.Println("Could not Update markets: ", err.Error())
+								// 	}
+								// 	fmt.Println("Markets Batched and Updated in DB for Fixture: ", marketSet.FixtureId, " Time: ", time.Now(), " Selection_id: ", oddsObj.Outcome_id, "Odds change: ", oddsObj.Odds)
+								// }
+
+								_, oddsError := Db.Exec("UPDATE odds_live SET oddsObject=? WHERE market_id=? AND outcome_id=?", oddsObjMarsh, market_id, outcome_id_marsh)
+								if oddsError != nil {
+									fmt.Println(oddsError)
+								}
+								fmt.Println("Markets Batched and Updated in DB for Fixture: ", marketSet.FixtureId, " Time: ", time.Now(), " Selection_id: ", oddsObj.Outcome_id, "Odds change: ", oddsObj.Odds)
 							}
 						}
 						//fmt.Println("Markets Added to DB for Fixture: ", marketSet.FixtureId, ": ", markets.Name)
