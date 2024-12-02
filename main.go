@@ -257,13 +257,11 @@ func marketsConsumer(conn *amqp.Connection) {
 								if oddsError != nil {
 									fmt.Println(oddsError)
 								}
-								fmt.Println("Markets Updated in DB for Fixture: ", marketSet.FixtureId, ": ", markets.Name, ": ", oddsObj.Outcome_id, ": ", oddsObj.Odds)
-								//fmt.Println("Odds updated in DB:", string(oddsObjMarsh))
+								fmt.Println("Markets Updated in DB for Fixture: ", marketSet.FixtureId)
+								// fmt.Println("Markets Updated in DB for Fixture: ", marketSet.FixtureId, ": ", markets.Name, ": ", oddsObj.Outcome_id, ": ", oddsObj.Odds)
 							}
 						}
 						//fmt.Println("Markets Added to DB for Fixture: ", marketSet.FixtureId, ": ", markets.Name)
-						//log.Info().Msg("Market Set Added to DB " + markets.MarketType.Name + string(markets.Id))
-
 					}
 				}
 			}
