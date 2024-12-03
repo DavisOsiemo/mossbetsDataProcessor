@@ -279,8 +279,6 @@ func marketsConsumer(conn *amqp.Connection) {
 	go func() {
 		for d := range msgs {
 
-			log.Printf(" [x] %s", d.Body)
-
 			ackStartTime := time.Now()
 
 			// Manually acknowledge the message
@@ -288,6 +286,7 @@ func marketsConsumer(conn *amqp.Connection) {
 				log.Printf("Failed to acknowledge message: %v", err)
 			} else {
 				fmt.Println("Message acknowledged.")
+				log.Printf(" [x] %s", d.Body)
 			}
 
 			// Record the time after the work is done
@@ -297,7 +296,7 @@ func marketsConsumer(conn *amqp.Connection) {
 			ackStartDuration := ackStopTime.Sub(ackStartTime)
 
 			// Print the time difference
-			fmt.Printf("Acknowldgement Time taken: %v\n", ackStartDuration)
+			fmt.Printf("Acknowledgement Time taken: %v\n", ackStartDuration)
 
 			var marketSet MarketSet
 
