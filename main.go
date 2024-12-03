@@ -255,7 +255,7 @@ func marketsConsumer(conn *amqp.Connection) {
 
 	// Set QoS for the channel (prefetch_count = 1)
 	err = ch.Qos(
-		50,    // prefetch_count
+		400,   // prefetch_count
 		0,     // prefetch_size
 		false, // global (false means QoS is applied per channel, not globally)
 	)
