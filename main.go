@@ -255,7 +255,7 @@ func marketsConsumer(conn *amqp.Connection) {
 
 	// Set QoS for the channel (prefetch_count = 1)
 	err = ch.Qos(
-		200,   // prefetch_count
+		50,    // prefetch_count
 		0,     // prefetch_size
 		false, // global (false means QoS is applied per channel, not globally)
 	)
@@ -281,12 +281,23 @@ func marketsConsumer(conn *amqp.Connection) {
 
 			log.Printf(" [x] %s", d.Body)
 
+			ackStartTime := time.Now()
+
 			// Manually acknowledge the message
 			if err := d.Ack(false); err != nil {
 				log.Printf("Failed to acknowledge message: %v", err)
 			} else {
 				fmt.Println("Message acknowledged.")
 			}
+
+			// Record the time after the work is done
+			ackStopTime := time.Now()
+
+			// Calculate the difference between the two times
+			ackStartDuration := ackStopTime.Sub(ackStartTime)
+
+			// Print the time difference
+			fmt.Printf("Acknowldgement Time taken: %v\n", ackStartDuration)
 
 			var marketSet MarketSet
 
@@ -427,7 +438,7 @@ func marketsConsumer(conn *amqp.Connection) {
 			duration := endTime.Sub(startTime)
 
 			// Print the time difference
-			fmt.Printf("Time taken: %v\n", duration)
+			fmt.Printf("DB insertion time: %v\n", duration)
 		}
 	}()
 
