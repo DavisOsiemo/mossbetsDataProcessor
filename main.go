@@ -184,6 +184,7 @@ func batchInsertOddslive(records []Odds) error {
 
 		// Prepare a batch insert for this chunk of records
 		args := make([]interface{}, 0, (end-i)*2)
+
 		for _, record := range records[i:end] {
 			args = append(args, record.Outcome_id, record.Odd_status, record.Outcome_name, record.Match_id,
 				record.Odds, record.Prevous_odds, record.Direction, record.Producer_name, record.Market_id,
@@ -346,51 +347,52 @@ func marketsConsumer(conn *amqp.Connection) {
 						odds := []Odds{
 							{vals.Id, vals.TradingStatus, vals.Name, marketSet.FixtureId, vals.Decimal, vals.Decimal, selections.Range.High, markets.MarketType.Name, markets.MarketType.Id, vals.Id, 1, market_name_alias, dateVal, 1, markets.InPlay, markets.TradingStatus, alias},
 						}
+
 						batchInsertOddslive(odds)
 
-						results3, err := Db.Query("SELECT odds_live.market_id, odds_live.outcome_id, odds_live.outcome_name, odds_live.alias, odds_live.odds, odds_live.odd_status FROM fixture LEFT JOIN odds_live ON fixture.match_id=odds_live.match_id WHERE fixture.match_id=? ORDER BY CASE WHEN odds_live.market_name='Match Result' then 0 else 1 end, date desc", marketSet.FixtureId)
-						if err != nil {
-							fmt.Println("Err", err.Error())
-						}
+						// results3, err := Db.Query("SELECT odds_live.market_id, odds_live.outcome_id, odds_live.outcome_name, odds_live.alias, odds_live.odds, odds_live.odd_status FROM fixture LEFT JOIN odds_live ON fixture.match_id=odds_live.match_id WHERE fixture.match_id=? ORDER BY CASE WHEN odds_live.market_name='Match Result' then 0 else 1 end, date desc", marketSet.FixtureId)
+						// if err != nil {
+						// 	fmt.Println("Err", err.Error())
+						// }
 
-						odd3 := []Outcome_obj{}
+						// odd3 := []Outcome_obj{}
 
-						for results3.Next() {
-							var odd Outcome_obj
+						// for results3.Next() {
+						// 	var odd Outcome_obj
 
-							err = results3.Scan(&odd.Market_id, &odd.Outcome_id, &odd.Outcome_name, &odd.Alias, &odd.Odds, &odd.Odd_status)
+						// 	err = results3.Scan(&odd.Market_id, &odd.Outcome_id, &odd.Outcome_name, &odd.Alias, &odd.Odds, &odd.Odd_status)
 
-							if err != nil {
-								fmt.Println(err)
-							}
-							odd3 = append(odd3, odd)
-						}
+						// 	if err != nil {
+						// 		fmt.Println(err)
+						// 	}
+						// 	odd3 = append(odd3, odd)
+						// }
 
-						groupedByMarketId := GroupByProperty(odd3, func(p Outcome_obj) int {
-							return p.Market_id
-						})
+						// groupedByMarketId := GroupByProperty(odd3, func(p Outcome_obj) int {
+						// 	return p.Market_id
+						// })
 
-						for market_id, group := range groupedByMarketId {
+						// for market_id, group := range groupedByMarketId {
 
-							for _, oddsObj := range group {
+						// 	for _, oddsObj := range group {
 
-								oddsObjMarsh, err := json.Marshal(oddsObj)
-								if err != nil {
-									fmt.Println("Odds not persisted ")
-								}
+						// 		oddsObjMarsh, err := json.Marshal(oddsObj)
+						// 		if err != nil {
+						// 			fmt.Println("Odds not persisted ")
+						// 		}
 
-								outcome_id_marsh, err := json.Marshal(oddsObj.Outcome_id)
-								if err != nil {
-									fmt.Println("Odds not persisted")
-								}
+						// 		outcome_id_marsh, err := json.Marshal(oddsObj.Outcome_id)
+						// 		if err != nil {
+						// 			fmt.Println("Odds not persisted")
+						// 		}
 
-								_, oddsError := Db.Exec("UPDATE odds_live SET oddsObject=? WHERE market_id=? AND outcome_id=?", oddsObjMarsh, market_id, outcome_id_marsh)
-								if oddsError != nil {
-									fmt.Println(oddsError)
-								}
-								fmt.Println("Odds Updated in DB for Fixture: ", marketSet.FixtureId, " Time: ", time.Now(), " Selection_id: ", oddsObj.Outcome_id, "Odds change: ", oddsObj.Odds)
-							}
-						}
+						// 		_, oddsError := Db.Exec("UPDATE odds_live SET oddsObject=? WHERE market_id=? AND outcome_id=?", oddsObjMarsh, market_id, outcome_id_marsh)
+						// 		if oddsError != nil {
+						// 			fmt.Println(oddsError)
+						// 		}
+						// 		fmt.Println("Odds Updated in DB for Fixture: ", marketSet.FixtureId, " Time: ", time.Now(), " Selection_id: ", oddsObj.Outcome_id, "Odds change: ", oddsObj.Odds)
+						// 	}
+						// }
 						//fmt.Println("Markets Added to DB for Fixture: ", marketSet.FixtureId, ": ", markets.Name)
 					}
 				}
