@@ -253,14 +253,24 @@ func marketsConsumer(conn *amqp.Connection) {
 		nil)
 	failOnError(err, "Failed to bind route: MARKETS_ROUTE")
 
+	// Set QoS for the channel (prefetch_count = 1)
+	err = ch.Qos(
+		200,   // prefetch_count
+		0,     // prefetch_size
+		false, // global (false means QoS is applied per channel, not globally)
+	)
+	if err != nil {
+		fmt.Println("Failed to set QoS: ", err.Error())
+	}
+
 	msgs, err := ch.Consume(
-		q.Name, // queue
-		"",     // consumer
-		true,   // auto-ack
-		false,  // exclusive
-		false,  // no-local
-		false,  // no-wait
-		nil,    // args
+		q.Name,            // queue
+		"MARKET_CONSUMER", // consumer
+		false,             // auto-ack
+		false,             // exclusive
+		false,             // no-local
+		false,             // no-wait
+		nil,               // args
 	)
 	failOnError(err, "Failed to register a consumer")
 
@@ -271,27 +281,24 @@ func marketsConsumer(conn *amqp.Connection) {
 
 			log.Printf(" [x] %s", d.Body)
 
-			//log.Printf("Done")
-			//d.Ack(false)
-
 			var marketSet MarketSet
 
 			if err := json.Unmarshal(d.Body, &marketSet); err != nil {
-				panic(err)
+				fmt.Println(err)
+				d.Ack(false)
+				continue
 			}
-
-			fmt.Println("Consumed market from Queue for Fixture: ", marketSet.FixtureId, " Time: ", time.Now())
 
 			for _, markets := range marketSet.Markets {
 
-				// _, dbError := Db.Exec("INSERT INTO highlights_market (market_id, specifier, name, alias, priority) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE alias=?, market_id=?", markets.MarketType.Id, markets.TradingStatus, markets.MarketType.Name, markets.MarketType.Name, 1, markets.MarketType.Name, markets.MarketType.Id)
-				// if dbError != nil {
-				// 	log.Fatal().Err(dbError).Msg("Failed to insert MarketSet to DB")
-				// }
+				//timers
+				//goroutines
+				//select, update
 
 				highlights_market := []Highlights_market{
 					{markets.MarketType.Id, markets.TradingStatus, markets.MarketType.Name, markets.MarketType.Name, 1},
 				}
+
 				batchInsert(highlights_market)
 
 				for _, selections := range markets.Selections {
