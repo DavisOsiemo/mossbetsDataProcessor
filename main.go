@@ -281,13 +281,22 @@ func marketsConsumer(conn *amqp.Connection) {
 
 			log.Printf(" [x] %s", d.Body)
 
+			// Manually acknowledge the message
+			if err := d.Ack(false); err != nil {
+				log.Printf("Failed to acknowledge message: %v", err)
+			} else {
+				fmt.Println("Message acknowledged.")
+			}
+
 			var marketSet MarketSet
 
 			if err := json.Unmarshal(d.Body, &marketSet); err != nil {
 				fmt.Println(err)
-				d.Ack(false)
 				continue
 			}
+
+			// Record the current time
+			startTime := time.Now()
 
 			for _, markets := range marketSet.Markets {
 
@@ -410,6 +419,15 @@ func marketsConsumer(conn *amqp.Connection) {
 					}
 				}
 			}
+
+			// Record the time after the work is done
+			endTime := time.Now()
+
+			// Calculate the difference between the two times
+			duration := endTime.Sub(startTime)
+
+			// Print the time difference
+			fmt.Printf("Time taken: %v\n", duration)
 		}
 	}()
 
