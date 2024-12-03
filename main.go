@@ -269,7 +269,7 @@ func marketsConsumer(conn *amqp.Connection) {
 	go func() {
 		for d := range msgs {
 
-			// log.Printf(" [x] %s", d.Body)
+			log.Printf(" [x] %s", d.Body)
 
 			//log.Printf("Done")
 			//d.Ack(false)
