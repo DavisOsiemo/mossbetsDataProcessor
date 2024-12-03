@@ -109,7 +109,7 @@ func batchInsert(records []Highlights_market) error {
 	defer tx.Rollback() // Rollback if the function returns an error
 
 	// Execute the batch insert in chunks (e.g., 100 records per chunk)
-	batchSize := 100
+	batchSize := 500
 	for i := 0; i < len(records); i += batchSize {
 		end := i + batchSize
 		if end > len(records) {
