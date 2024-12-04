@@ -314,11 +314,11 @@ func marketsConsumer(conn *amqp.Connection) {
 				//goroutines
 				//select, update
 
-				// highlights_market := []Highlights_market{
-				// 	{markets.MarketType.Id, markets.TradingStatus, markets.MarketType.Name, markets.MarketType.Name, 1},
-				// }
+				highlights_market := []Highlights_market{
+					{markets.MarketType.Id, markets.TradingStatus, markets.MarketType.Name, markets.MarketType.Name, 1},
+				}
 
-				//batchInsert(highlights_market)
+				batchInsert(highlights_market)
 
 				for _, selections := range markets.Selections {
 					odds, err := json.Marshal(markets.Selections)
@@ -391,7 +391,7 @@ func marketsConsumer(conn *amqp.Connection) {
 						oddsInsertDuration := oddStopTime.Sub(oddStartTime)
 
 						// Print the time difference
-						fmt.Printf("Odds insertion Time taken: %v\n", oddsInsertDuration)
+						fmt.Println("Odds insertion Time taken: ", oddsInsertDuration, " Started at: ", oddStartTime, " Finished at: ", oddStopTime)
 
 						// results3, err := Db.Query("SELECT odds_live.market_id, odds_live.outcome_id, odds_live.outcome_name, odds_live.alias, odds_live.odds, odds_live.odd_status FROM fixture LEFT JOIN odds_live ON fixture.match_id=odds_live.match_id WHERE fixture.match_id=? ORDER BY CASE WHEN odds_live.market_name='Match Result' then 0 else 1 end, date desc", marketSet.FixtureId)
 						// if err != nil {
