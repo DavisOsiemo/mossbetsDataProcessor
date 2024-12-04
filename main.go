@@ -134,7 +134,7 @@ func batchInsert(records []Highlights_market) error {
 		fmt.Println("Error committing transaction: ", err)
 	}
 
-	fmt.Printf("Inserted highlight markets%d records successfully.\n", len(records))
+	// fmt.Printf("Inserted highlight markets%d records successfully.\n", len(records))
 	return nil
 }
 
