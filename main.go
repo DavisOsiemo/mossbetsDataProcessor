@@ -286,7 +286,7 @@ func marketsConsumer(conn *amqp.Connection) {
 func processMessage(msg amqp.Delivery) {
 	//var forever chan struct{}
 
-	fmt.Printf("Received a message: %s\n", msg.Body)
+	//fmt.Printf("Received a message: %s\n", msg.Body)
 
 	ackStartTime := time.Now()
 
