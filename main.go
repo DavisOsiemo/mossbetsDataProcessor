@@ -159,54 +159,54 @@ type Odds struct {
 }
 
 // Batch insert function
-// func batchInsertOddslive(records []Odds) error {
-// 	// Prepare the batch insert query template
-// 	stmt, err := Db.Prepare("INSERT INTO odds_live (outcome_id, odd_status, outcome_name, match_id, odds, prevous_odds, direction, producer_name, market_id, producer_id, producer_status, market_name, time_stamp, processing_delays, status, status_name, alias) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE odds=VALUES(odds), prevous_odds=VALUES(prevous_odds), producer_id=VALUES(producer_id), alias=VALUES(alias), market_name=VALUES(market_name), status=VALUES(status), status_name=VALUES(status_name), odd_status=VALUES(odd_status)")
-// 	if err != nil {
-// 		fmt.Println("Error preparing statement: ", err)
-// 	}
-// 	defer stmt.Close()
+func batchInsertOddslive(records []Odds) error {
+	// Prepare the batch insert query template
+	stmt, err := Db.Prepare("INSERT INTO odds_live (outcome_id, odd_status, outcome_name, match_id, odds, prevous_odds, direction, producer_name, market_id, producer_id, producer_status, market_name, time_stamp, processing_delays, status, status_name, alias) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+	if err != nil {
+		fmt.Println("Error preparing statement: ", err)
+	}
+	defer stmt.Close()
 
-// 	// Start a transaction
-// 	tx, err := Db.Begin()
-// 	if err != nil {
-// 		fmt.Println("Error starting transaction: ", err)
-// 	}
-// 	defer tx.Rollback() // Rollback if the function returns an error
+	// Start a transaction
+	tx, err := Db.Begin()
+	if err != nil {
+		fmt.Println("Error starting transaction: ", err)
+	}
+	defer tx.Rollback() // Rollback if the function returns an error
 
-// 	// Execute the batch insert in chunks (e.g., 100 records per chunk)
-// 	batchSize := 100
-// 	for i := 0; i < len(records); i += batchSize {
-// 		end := i + batchSize
-// 		if end > len(records) {
-// 			end = len(records)
-// 		}
+	// Execute the batch insert in chunks (e.g., 100 records per chunk)
+	batchSize := 200
+	for i := 0; i < len(records); i += batchSize {
+		end := i + batchSize
+		if end > len(records) {
+			end = len(records)
+		}
 
-// 		// Prepare a batch insert for this chunk of records
-// 		args := make([]interface{}, 0, (end-i)*2)
+		// Prepare a batch insert for this chunk of records
+		args := make([]interface{}, 0, (end-i)*2)
 
-// 		for _, record := range records[i:end] {
-// 			args = append(args, record.Outcome_id, record.Odd_status, record.Outcome_name, record.Match_id,
-// 				record.Odds, record.Prevous_odds, record.Direction, record.Producer_name, record.Market_id,
-// 				record.Producer_id, record.Producer_status, record.Market_name,
-// 				record.Time_stamp, record.Processing_delays, record.Status, record.Status_name, record.Alias)
-// 		}
+		for _, record := range records[i:end] {
+			args = append(args, record.Outcome_id, record.Odd_status, record.Outcome_name, record.Match_id,
+				record.Odds, record.Prevous_odds, record.Direction, record.Producer_name, record.Market_id,
+				record.Producer_id, record.Producer_status, record.Market_name,
+				record.Time_stamp, record.Processing_delays, record.Status, record.Status_name, record.Alias)
+		}
 
-// 		// Execute the batch insert
-// 		_, err := tx.Stmt(stmt).Exec(args...)
-// 		if err != nil {
-// 			fmt.Println("Error executing Odds batch insert: ", err)
-// 		}
-// 	}
+		// Execute the batch insert
+		_, err := tx.Stmt(stmt).Exec(args...)
+		if err != nil {
+			fmt.Println("Error executing Odds batch insert: ", err)
+		}
+	}
 
-// 	// Commit the transaction
-// 	if err := tx.Commit(); err != nil {
-// 		fmt.Println("Error committing markets transaction: ", err)
-// 	}
+	// Commit the transaction
+	if err := tx.Commit(); err != nil {
+		fmt.Println("Error committing markets transaction: ", err)
+	}
 
-// 	fmt.Printf("Inserted Odds %d records successfully.\n", len(records))
-// 	return nil
-// }
+	fmt.Printf("Inserted Odds %d records successfully.\n", len(records))
+	return nil
+}
 
 func GroupByProperty[T any, K comparable](items []T, getProperty func(T) K) map[K][]T {
 	grouped := make(map[K][]T)
@@ -370,17 +370,17 @@ func marketsConsumer(conn *amqp.Connection) {
 
 						dateVal := mstTime.Format(time.DateTime)
 
-						_, oddsError := Db.Exec("INSERT INTO odds_live (outcome_id, odd_status, outcome_name, match_id, odds, prevous_odds, direction, producer_name, market_id, producer_id, producer_status, market_name, time_stamp, processing_delays, status, status_name, alias) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE odds=?, prevous_odds=?, producer_id=?, alias=?, market_name=?, status=?, status_name=?, odd_status=?", vals.Id, vals.TradingStatus, vals.Name, marketSet.FixtureId, vals.Decimal, vals.Decimal, selections.Range.High, markets.MarketType.Name, markets.MarketType.Id, vals.Id, 1, market_name_alias, dateVal, 1, markets.InPlay, markets.TradingStatus, alias, vals.Decimal, vals.Decimal, vals.Id, alias, market_name_alias, markets.InPlay, markets.TradingStatus, vals.TradingStatus)
-						if oddsError != nil {
-							fmt.Println("Failed to insert Odds to DB: ", oddsError.Error())
-							//log.Fatal().Err(oddsError).Msg("Failed to insert Odds to DB")
-						}
-
-						// odds := []Odds{
-						// 	{vals.Id, vals.TradingStatus, vals.Name, marketSet.FixtureId, vals.Decimal, vals.Decimal, selections.Range.High, markets.MarketType.Name, markets.MarketType.Id, vals.Id, 1, market_name_alias, dateVal, 1, markets.InPlay, markets.TradingStatus, alias},
+						// _, oddsError := Db.Exec("INSERT INTO odds_live (outcome_id, odd_status, outcome_name, match_id, odds, prevous_odds, direction, producer_name, market_id, producer_id, producer_status, market_name, time_stamp, processing_delays, status, status_name, alias) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE odds=?, prevous_odds=?, producer_id=?, alias=?, market_name=?, status=?, status_name=?, odd_status=?", vals.Id, vals.TradingStatus, vals.Name, marketSet.FixtureId, vals.Decimal, vals.Decimal, selections.Range.High, markets.MarketType.Name, markets.MarketType.Id, vals.Id, 1, market_name_alias, dateVal, 1, markets.InPlay, markets.TradingStatus, alias, vals.Decimal, vals.Decimal, vals.Id, alias, market_name_alias, markets.InPlay, markets.TradingStatus, vals.TradingStatus)
+						// if oddsError != nil {
+						// 	fmt.Println("Failed to insert Odds to DB: ", oddsError.Error())
+						// 	//log.Fatal().Err(oddsError).Msg("Failed to insert Odds to DB")
 						// }
 
-						// batchInsertOddslive(odds)
+						odds := []Odds{
+							{vals.Id, vals.TradingStatus, vals.Name, marketSet.FixtureId, vals.Decimal, vals.Decimal, selections.Range.High, markets.MarketType.Name, markets.MarketType.Id, vals.Id, 1, market_name_alias, dateVal, 1, markets.InPlay, markets.TradingStatus, alias},
+						}
+
+						batchInsertOddslive(odds)
 
 						// results3, err := Db.Query("SELECT odds_live.market_id, odds_live.outcome_id, odds_live.outcome_name, odds_live.alias, odds_live.odds, odds_live.odd_status FROM fixture LEFT JOIN odds_live ON fixture.match_id=odds_live.match_id WHERE fixture.match_id=? ORDER BY CASE WHEN odds_live.market_name='Match Result' then 0 else 1 end, date desc", marketSet.FixtureId)
 						// if err != nil {
