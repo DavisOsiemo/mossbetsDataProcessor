@@ -161,7 +161,7 @@ type Odds struct {
 // Batch insert function
 func batchInsertOddslive(records []Odds) error {
 	// Prepare the batch insert query template
-	stmt, err := Db.Prepare("INSERT INTO odds_live (outcome_id, odd_status, outcome_name, match_id, odds, prevous_odds, direction, producer_name, market_id, producer_id, producer_status, market_name, time_stamp, processing_delays, status, status_name, alias) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE odds=VALUES(odds), prevous_odds=VALUES(prevous_odds), producer_id=VALUES(producer_id), alias=VALUES(alias), market_name=VALUES(market_name), status=VALUES(status), status_name=VALUES(status_name), odd_status=VALUES(odd_status)")
+	stmt, err := Db.Prepare("INSERT INTO odds_live (outcome_id, odd_status, outcome_name, match_id, odds, prevous_odds, direction, producer_name, market_id, producer_id, producer_status, market_name, time_stamp, processing_delays, status, status_name, alias) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE odd_status=VALUES(odd_status), odds=VALUES(odds), prevous_odds=VALUES(prevous_odds), producer_id=VALUES(producer_id), alias=VALUES(alias), market_name=VALUES(market_name), status=VALUES(status), status_name=VALUES(status_name), odd_status=VALUES(odd_status)")
 	if err != nil {
 		fmt.Println("Error preparing statement: ", err)
 	}
@@ -284,9 +284,6 @@ func marketsConsumer(conn *amqp.Connection) {
 }
 
 func processMessage(msg amqp.Delivery) {
-	//var forever chan struct{}
-
-	//fmt.Printf("Received a message: %s\n", msg.Body)
 
 	ackStartTime := time.Now()
 
@@ -317,10 +314,6 @@ func processMessage(msg amqp.Delivery) {
 	startTime := time.Now()
 
 	for _, markets := range marketSet.Markets {
-
-		//timers
-		//goroutines
-		//select, update
 
 		highlights_market := []Highlights_market{
 			{markets.MarketType.Id, markets.TradingStatus, markets.MarketType.Name, markets.MarketType.Name, 1},
@@ -378,12 +371,6 @@ func processMessage(msg amqp.Delivery) {
 
 				dateVal := mstTime.Format(time.DateTime)
 
-				// _, oddsError := Db.Exec("INSERT INTO odds_live (outcome_id, odd_status, outcome_name, match_id, odds, prevous_odds, direction, producer_name, market_id, producer_id, producer_status, market_name, time_stamp, processing_delays, status, status_name, alias) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE odds=?, prevous_odds=?, producer_id=?, alias=?, market_name=?, status=?, status_name=?, odd_status=?", vals.Id, vals.TradingStatus, vals.Name, marketSet.FixtureId, vals.Decimal, vals.Decimal, selections.Range.High, markets.MarketType.Name, markets.MarketType.Id, vals.Id, 1, market_name_alias, dateVal, 1, markets.InPlay, markets.TradingStatus, alias, vals.Decimal, vals.Decimal, vals.Id, alias, market_name_alias, markets.InPlay, markets.TradingStatus, vals.TradingStatus)
-				// if oddsError != nil {
-				// 	fmt.Println("Failed to insert Odds to DB: ", oddsError.Error())
-				// 	//log.Fatal().Err(oddsError).Msg("Failed to insert Odds to DB")
-				// }
-
 				odds := []Odds{
 					{vals.Id, vals.TradingStatus, vals.Name, marketSet.FixtureId, vals.Decimal, vals.Decimal, selections.Range.High, markets.MarketType.Name, markets.MarketType.Id, vals.Id, 1, market_name_alias, dateVal, 1, markets.InPlay, markets.TradingStatus, alias},
 				}
@@ -400,51 +387,6 @@ func processMessage(msg amqp.Delivery) {
 
 				// Print the time difference
 				fmt.Println("Odds insertion Time taken: ", oddsInsertDuration, " Started at: ", oddStartTime, " Finished at: ", oddStopTime)
-
-				// results3, err := Db.Query("SELECT odds_live.market_id, odds_live.outcome_id, odds_live.outcome_name, odds_live.alias, odds_live.odds, odds_live.odd_status FROM fixture LEFT JOIN odds_live ON fixture.match_id=odds_live.match_id WHERE fixture.match_id=? ORDER BY CASE WHEN odds_live.market_name='Match Result' then 0 else 1 end, date desc", marketSet.FixtureId)
-				// if err != nil {
-				// 	fmt.Println("Err", err.Error())
-				// }
-
-				// odd3 := []Outcome_obj{}
-
-				// for results3.Next() {
-				// 	var odd Outcome_obj
-
-				// 	err = results3.Scan(&odd.Market_id, &odd.Outcome_id, &odd.Outcome_name, &odd.Alias, &odd.Odds, &odd.Odd_status)
-
-				// 	if err != nil {
-				// 		fmt.Println(err)
-				// 	}
-				// 	odd3 = append(odd3, odd)
-				// }
-
-				// groupedByMarketId := GroupByProperty(odd3, func(p Outcome_obj) int {
-				// 	return p.Market_id
-				// })
-
-				// for market_id, group := range groupedByMarketId {
-
-				// 	for _, oddsObj := range group {
-
-				// 		oddsObjMarsh, err := json.Marshal(oddsObj)
-				// 		if err != nil {
-				// 			fmt.Println("Odds not persisted ")
-				// 		}
-
-				// 		outcome_id_marsh, err := json.Marshal(oddsObj.Outcome_id)
-				// 		if err != nil {
-				// 			fmt.Println("Odds not persisted")
-				// 		}
-
-				// 		_, oddsError := Db.Exec("UPDATE odds_live SET oddsObject=? WHERE market_id=? AND outcome_id=?", oddsObjMarsh, market_id, outcome_id_marsh)
-				// 		if oddsError != nil {
-				// 			fmt.Println(oddsError)
-				// 		}
-				// 		fmt.Println("Odds Updated in DB for Fixture: ", marketSet.FixtureId, " Time: ", time.Now(), " Selection_id: ", oddsObj.Outcome_id, "Odds change: ", oddsObj.Odds)
-				// 	}
-				// }
-				//fmt.Println("Markets Added to DB for Fixture: ", marketSet.FixtureId, ": ", markets.Name)
 			}
 		}
 	}
@@ -456,5 +398,5 @@ func processMessage(msg amqp.Delivery) {
 	duration := endTime.Sub(startTime)
 
 	// Print the time difference
-	fmt.Printf("DB insertion time: %v\n", duration)
+	fmt.Printf("DB insertion time for Markets: %v\n", duration)
 }
