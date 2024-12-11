@@ -343,6 +343,25 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 
 	for msg := range msgs {
 
+		ackStartTime := time.Now()
+
+		// Manually acknowledge the message
+		if err := msg.Ack(false); err != nil {
+			log.Printf("Failed to acknowledge message: %v", err.Error())
+		} else {
+			fmt.Println("Message acknowledged.")
+			log.Printf(" [x] %s", msg.Body)
+		}
+
+		// Record the time after the work is done
+		ackStopTime := time.Now()
+
+		// Calculate the difference between the two times
+		ackStartDuration := ackStopTime.Sub(ackStartTime)
+
+		// Print the time difference
+		fmt.Printf("Acknowledgement Time taken: %v\n", ackStartDuration)
+
 		var marketSet MarketSet
 
 		if err := json.Unmarshal(msg.Body, &marketSet); err != nil {
@@ -429,25 +448,6 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 					default: //If queue is full, drop the message
 						fmt.Println("Queue is full, dropping message")
 					}
-
-					ackStartTime := time.Now()
-
-					// Manually acknowledge the message
-					if err := msg.Ack(false); err != nil {
-						log.Printf("Failed to acknowledge message: %v", err.Error())
-					} else {
-						fmt.Println("Message acknowledged.")
-						log.Printf(" [x] %s", msg.Body)
-					}
-
-					// Record the time after the work is done
-					ackStopTime := time.Now()
-
-					// Calculate the difference between the two times
-					ackStartDuration := ackStopTime.Sub(ackStartTime)
-
-					// Print the time difference
-					fmt.Printf("Acknowledgement Time taken: %v\n", ackStartDuration)
 				}
 			}
 		}
