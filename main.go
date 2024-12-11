@@ -449,7 +449,12 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 
 					select {
 					case queue <- odd: //Send message to queue
-					default: //If queue is full, drop the message
+					// Message successfully added to queue
+					default: //If queue is full, drop the message. Slows down the rate at which messages are consumed
+						// Backpressure Implementation
+						// Add a small delay to avoid flooding the queue
+						time.Sleep(100 * time.Millisecond)
+
 						fmt.Println("Queue is full, dropping message")
 					}
 				}
