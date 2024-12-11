@@ -319,12 +319,12 @@ func marketsConsumer(conn *amqp.Connection) {
 func insertBatchIntoDB(messages []Odds) error {
 	// Start building the INSERT query
 	//query := "INSERT INTO odds_live (outcome_id, odd_status, outcome_name, match_id, odds, prevous_odds, direction, producer_name, market_id, producer_id, producer_status, market_name, time_stamp, processing_delays, status, status_name, alias) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE odd_status=VALUES(odd_status), odds=VALUES(odds), prevous_odds=VALUES(prevous_odds), producer_id=VALUES(producer_id), alias=VALUES(alias), market_name=VALUES(market_name), status=VALUES(status), status_name=VALUES(status_name), odd_status=VALUES(odd_status)"
-	query := "INSERT INTO odds_live (outcome_id, odd_status, outcome_name, match_id, odds, prevous_odds, direction, producer_name, market_id, producer_id, producer_status, market_name, time_stamp, processing_delays, status, status_name, alias) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+	query := "INSERT INTO odds_live (outcome_id, odd_status, outcome_name, match_id, odds, prevous_odds, direction, producer_name, market_id, producer_id, producer_status, market_name, time_stamp, processing_delays, status, status_name, alias) VALUES "
 	vals := []interface{}{}
 
 	// Add each message's data into the query
 	for _, record := range messages {
-		query += "(?, ?),"
+		query += "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?),"
 		vals = append(vals, record.Outcome_id, record.Odd_status, record.Outcome_name, record.Match_id,
 			record.Odds, record.Prevous_odds, record.Direction, record.Producer_name, record.Market_id,
 			record.Producer_id, record.Producer_status, record.Market_name,
