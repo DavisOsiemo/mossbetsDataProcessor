@@ -324,7 +324,7 @@ func insertBatchIntoDB(messages []Odds) error {
 
 	// Add each message's data into the query
 	for _, record := range messages {
-		query += "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE odd_status=VALUES(odd_status), odds=VALUES(odds), prevous_odds=VALUES(prevous_odds), producer_id=VALUES(producer_id), alias=VALUES(alias), market_name=VALUES(market_name), status=VALUES(status), status_name=VALUES(status_name), odd_status=VALUES(odd_status),"
+		query += "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?),"
 		vals = append(vals, record.Outcome_id, record.Odd_status, record.Outcome_name, record.Match_id,
 			record.Odds, record.Prevous_odds, record.Direction, record.Producer_name, record.Market_id,
 			record.Producer_id, record.Producer_status, record.Market_name,
@@ -333,6 +333,9 @@ func insertBatchIntoDB(messages []Odds) error {
 
 	// Remove the last comma
 	query = query[:len(query)-1]
+
+	// Add "ON DUPLICATE KEY UPDATE" to the query
+	query += " ON DUPLICATE KEY UPDATE odd_status=VALUES(odd_status), odds=VALUES(odds), prevous_odds=VALUES(prevous_odds), producer_id=VALUES(producer_id), alias=VALUES(alias), market_name=VALUES(market_name), status=VALUES(status), status_name=VALUES(status_name), odd_status=VALUES(odd_status) "
 
 	// Execute the query
 	_, err := Db.Exec(query, vals...)
