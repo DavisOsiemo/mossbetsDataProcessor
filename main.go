@@ -32,7 +32,79 @@ func main() {
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
-	marketsConsumer(conn)
+	ch, err := conn.Channel()
+	failOnError(err, "Failed to open a channel")
+	defer ch.Close()
+
+	q, err := ch.QueueDeclare(
+		"MARKETS_QUEUE", // name
+		true,            // durable
+		false,           // delete when unused
+		false,           // exclusive
+		false,           // no-wait
+		nil,             // arguments
+	)
+	failOnError(err, "Failed to declare a queue")
+
+	err = ch.ExchangeDeclare(
+		"MARKETS_EXCHANGE", // name
+		"direct",           // type
+		true,               // durable
+		false,              // auto-deleted
+		false,              // internal
+		false,              // no-wait
+		nil,                // arguments
+	)
+	failOnError(err, "Failed to declare an exchange: MARKETS_EXCHANGE")
+
+	err = ch.QueueBind(
+		"MARKETS_QUEUE",    // queue name
+		"MARKETS_ROUTE",    // routing key
+		"MARKETS_EXCHANGE", // exchange
+		false,
+		nil)
+	failOnError(err, "Failed to bind route: MARKETS_ROUTE")
+
+	// Set QoS for the channel (prefetch_count = 1)
+	err = ch.Qos(
+		400,   // prefetch_count
+		0,     // prefetch_size
+		false, // global (false means QoS is applied per channel, not globally)
+	)
+	if err != nil {
+		fmt.Println("Failed to set QoS: ", err.Error())
+	}
+
+	// Create a blocking queue (channel) for the messages
+	queue := make(chan Odds, maxQueueSize)
+
+	// Start worker goroutines to process database inserts in batches
+	for i := 0; i < maxWorkerCount; i++ {
+		go worker(queue)
+	}
+
+	msgs, err := ch.Consume(
+		q.Name,            // queue
+		"MARKET_CONSUMER", // consumer
+		false,             // auto-ack
+		false,             // exclusive
+		false,             // no-local
+		false,             // no-wait
+		nil,               // args
+	)
+	failOnError(err, "Failed to register a consumer")
+
+	// Start the consumer
+	consumeFromRabbitMQ(msgs, queue)
+
+	// for msg := range msgs {
+	// 	go processMessage(msg)
+	// }
+
+	fmt.Println("Waiting for messages. CRTL+C to exit")
+	select {}
+
+	//marketsConsumer(conn)
 }
 
 type MarketSet struct {
