@@ -362,7 +362,7 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 
 					// Manually acknowledge the message
 					if err := msg.Ack(false); err != nil {
-						log.Printf("Failed to acknowledge message: %v", err)
+						log.Printf("Failed to acknowledge message: %v", err.Error())
 					} else {
 						fmt.Println("Message acknowledged.")
 						log.Printf(" [x] %s", msg.Body)
