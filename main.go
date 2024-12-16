@@ -18,7 +18,7 @@ func failOnError(err error, msg string) {
 }
 
 const (
-	maxQueueSize   = 10000
+	maxQueueSize   = 400
 	maxWorkerCount = 2
 	batchSize      = 50 // Number of rows per batch
 )
@@ -404,7 +404,7 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 						} else if vals.Name == markets.Selections[2].Name {
 							alias = "2"
 						} else {
-							alias = selections.Name
+							alias = vals.Name
 						}
 					}
 
