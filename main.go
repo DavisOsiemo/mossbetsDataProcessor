@@ -403,9 +403,9 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 							alias = "x"
 						} else if vals.Name == markets.Selections[2].Name {
 							alias = "2"
-						} else {
-							alias = vals.Name
 						}
+					} else {
+						alias = vals.Name
 					}
 
 					if markets.Name == "Match Result" {
