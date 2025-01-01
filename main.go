@@ -188,6 +188,7 @@ type Odds struct {
 	Status            bool    `json:"status"`
 	Status_name       string  `json:"status_name"`
 	Alias             string  `json:"alias"`
+	Market_priority   int     `json:"market_priority"`
 }
 
 // func batchInsertOddslive(records []Odds) error {
@@ -319,16 +320,16 @@ func marketsConsumer(conn *amqp.Connection) {
 func insertBatchIntoDB(messages []Odds) error {
 	// Start building the INSERT query
 	//query := "INSERT INTO odds_live (outcome_id, odd_status, outcome_name, match_id, odds, prevous_odds, direction, producer_name, market_id, producer_id, producer_status, market_name, time_stamp, processing_delays, status, status_name, alias) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE odd_status=VALUES(odd_status), odds=VALUES(odds), prevous_odds=VALUES(prevous_odds), producer_id=VALUES(producer_id), alias=VALUES(alias), market_name=VALUES(market_name), status=VALUES(status), status_name=VALUES(status_name), odd_status=VALUES(odd_status)"
-	query := "INSERT INTO odds_live (outcome_id, odd_status, outcome_name, match_id, odds, prevous_odds, direction, producer_name, market_id, producer_id, producer_status, market_name, time_stamp, processing_delays, status, status_name, alias) VALUES "
+	query := "INSERT INTO odds_live (outcome_id, odd_status, outcome_name, match_id, odds, prevous_odds, direction, producer_name, market_id, producer_id, producer_status, market_name, time_stamp, processing_delays, status, status_name, alias, market_priority) VALUES "
 	vals := []interface{}{}
 
 	// Add each message's data into the query
 	for _, record := range messages {
-		query += "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?),"
+		query += "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?),"
 		vals = append(vals, record.Outcome_id, record.Odd_status, record.Outcome_name, record.Match_id,
 			record.Odds, record.Prevous_odds, record.Direction, record.Producer_name, record.Market_id,
 			record.Producer_id, record.Producer_status, record.Market_name,
-			record.Time_stamp, record.Processing_delays, record.Status, record.Status_name, record.Alias)
+			record.Time_stamp, record.Processing_delays, record.Status, record.Status_name, record.Alias, record.Market_priority)
 	}
 
 	// Remove the last comma
@@ -395,6 +396,7 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 
 					var alias string
 					var market_name_alias string
+					var market_priority int
 
 					if markets.Name == "Match Result" {
 						if vals.Name == markets.Selections[0].Name {
@@ -412,6 +414,38 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 						market_name_alias = "1x2"
 					} else {
 						market_name_alias = markets.MarketType.Name
+					}
+
+					if markets.MarketType.Id == 2 {
+						market_priority = 1000
+					} else if markets.MarketType.Id == 7079 {
+						market_priority = 950
+					} else if markets.MarketType.Id == 7202 {
+						market_priority = 900
+					} else if markets.MarketType.Id == 259 {
+						market_priority = 850
+					} else if markets.MarketType.Id == 105 {
+						market_priority = 800
+					} else if markets.MarketType.Id == 6832 {
+						market_priority = 750
+					} else if markets.MarketType.Id == 7076 {
+						market_priority = 700
+					} else if markets.MarketType.Id == 295 {
+						market_priority = 650
+					} else if markets.MarketType.Id == 10554 {
+						market_priority = 600
+					} else if markets.MarketType.Id == 253 {
+						market_priority = 550
+					} else if markets.MarketType.Id == 9498 {
+						market_priority = 500
+					} else if markets.MarketType.Id == 9497 {
+						market_priority = 450
+					} else if markets.MarketType.Id == 7086 {
+						market_priority = 400
+					} else if markets.MarketType.Id == 7087 {
+						market_priority = 350
+					} else {
+						market_priority = 10
 					}
 
 					t, err := time.Parse(time.RFC3339, markets.ExpiryUtc)
@@ -445,6 +479,7 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 						Status:            markets.InPlay,
 						Status_name:       markets.TradingStatus,
 						Alias:             alias,
+						Market_priority:   market_priority,
 					}
 
 					select {
