@@ -269,7 +269,7 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 					var market_priority int
 					var alias_priority int
 
-					if markets.Name == "Match Result" {
+					if markets.Id == 2 {
 						if vals.Name == markets.Selections[0].Name {
 							alias = "1"
 						} else if vals.Name == markets.Selections[1].Name {
