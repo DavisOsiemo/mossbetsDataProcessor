@@ -325,6 +325,8 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 						alias_priority = 70
 					} else if alias == "2" {
 						alias_priority = 40
+					} else {
+						alias_priority = 0
 					}
 
 					t, err := time.Parse(time.RFC3339, markets.ExpiryUtc)
