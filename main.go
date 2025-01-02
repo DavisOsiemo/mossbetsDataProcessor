@@ -206,7 +206,7 @@ func insertBatchIntoDB(messages []Odds) error {
 	query = query[:len(query)-1]
 
 	// Add "ON DUPLICATE KEY UPDATE" to the query
-	query += " ON DUPLICATE KEY UPDATE odd_status=VALUES(odd_status), odds=VALUES(odds), prevous_odds=VALUES(prevous_odds), producer_id=VALUES(producer_id), alias=VALUES(alias), market_name=VALUES(market_name), status=VALUES(status), status_name=VALUES(status_name), odd_status=VALUES(odd_status), market_priority=VALUES(market_priority "
+	query += " ON DUPLICATE KEY UPDATE odd_status=VALUES(odd_status), odds=VALUES(odds), prevous_odds=VALUES(prevous_odds), producer_id=VALUES(producer_id), alias=VALUES(alias), market_name=VALUES(market_name), status=VALUES(status), status_name=VALUES(status_name), odd_status=VALUES(odd_status), market_priority=VALUES(market_priority), alias_priority=VALUES(alias_priority) "
 
 	// Execute the query
 	_, err := Db.Exec(query, vals...)
