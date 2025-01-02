@@ -269,7 +269,7 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 					var market_priority int
 					var alias_priority int
 
-					if markets.Id == 2 {
+					if markets.Id == 2 { //1x2
 						if vals.Name == markets.Selections[0].Name {
 							alias = "1"
 						} else if vals.Name == markets.Selections[1].Name {
@@ -277,11 +277,7 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 						} else if vals.Name == markets.Selections[2].Name {
 							alias = "2"
 						}
-					} else {
-						alias = vals.Name
-					}
-
-					if markets.Name == "Double Chance" {
+					} else if markets.Id == 7202 { //Double Chance
 						if vals.Name == markets.Selections[0].Name {
 							alias = "1X"
 						} else if vals.Name == markets.Selections[1].Name {
