@@ -28,7 +28,6 @@ func main() {
 	MysqlDbConnect()
 
 	conn, err := amqp.Dial("amqp://liden:lID3n@10.132.0.28:5672/")
-	//conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
@@ -97,14 +96,9 @@ func main() {
 	// Start the consumer
 	consumeFromRabbitMQ(msgs, queue)
 
-	// for msg := range msgs {
-	// 	go processMessage(msg)
-	// }
-
 	fmt.Println("Waiting for messages. CRTL+C to exit")
 	select {}
 
-	//marketsConsumer(conn)
 }
 
 type MarketSet struct {
@@ -189,154 +183,30 @@ type Odds struct {
 	Status_name       string  `json:"status_name"`
 	Alias             string  `json:"alias"`
 	Market_priority   int     `json:"market_priority"`
-}
-
-// func batchInsertOddslive(records []Odds) error {
-// 	// Prepare the batch insert query template
-// 	stmt, err := Db.Prepare("INSERT INTO odds_live (outcome_id, odd_status, outcome_name, match_id, odds, prevous_odds, direction, producer_name, market_id, producer_id, producer_status, market_name, time_stamp, processing_delays, status, status_name, alias) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE odd_status=VALUES(odd_status), odds=VALUES(odds), prevous_odds=VALUES(prevous_odds), producer_id=VALUES(producer_id), alias=VALUES(alias), market_name=VALUES(market_name), status=VALUES(status), status_name=VALUES(status_name), odd_status=VALUES(odd_status)")
-// 	if err != nil {
-// 		fmt.Println("Error preparing statement: ", err)
-// 	}
-// 	defer stmt.Close()
-
-// 	// Start a transaction
-// 	tx, err := Db.Begin()
-// 	if err != nil {
-// 		fmt.Println("Error starting transaction: ", err)
-// 	}
-// 	defer tx.Rollback() // Rollback if the function returns an error
-
-// 	// Execute the batch insert in chunks (e.g., 100 records per chunk)
-// 	batchSize := 200
-// 	for i := 0; i < len(records); i += batchSize {
-// 		end := i + batchSize
-// 		if end > len(records) {
-// 			end = len(records)
-// 		}
-
-// 		// Prepare a batch insert for this chunk of records
-// 		args := make([]interface{}, 0, (end-i)*2)
-
-// 		for _, record := range records[i:end] {
-// 			args = append(args, record.Outcome_id, record.Odd_status, record.Outcome_name, record.Match_id,
-// 				record.Odds, record.Prevous_odds, record.Direction, record.Producer_name, record.Market_id,
-// 				record.Producer_id, record.Producer_status, record.Market_name,
-// 				record.Time_stamp, record.Processing_delays, record.Status, record.Status_name, record.Alias)
-// 		}
-
-// 		// Execute the batch insert
-// 		_, err := tx.Stmt(stmt).Exec(args...)
-// 		if err != nil {
-// 			fmt.Println("Error executing Odds batch insert: ", err)
-// 		}
-// 	}
-
-// 	// Commit the transaction
-// 	if err := tx.Commit(); err != nil {
-// 		fmt.Println("Error committing markets transaction: ", err)
-// 	}
-
-// 	//fmt.Printf("Inserted Odds %d records successfully.\n", len(records))
-// 	return nil
-// }
-
-func marketsConsumer(conn *amqp.Connection) {
-
-	ch, err := conn.Channel()
-	failOnError(err, "Failed to open a channel")
-	defer ch.Close()
-
-	q, err := ch.QueueDeclare(
-		"MARKETS_QUEUE", // name
-		true,            // durable
-		false,           // delete when unused
-		false,           // exclusive
-		false,           // no-wait
-		nil,             // arguments
-	)
-	failOnError(err, "Failed to declare a queue")
-
-	err = ch.ExchangeDeclare(
-		"MARKETS_EXCHANGE", // name
-		"direct",           // type
-		true,               // durable
-		false,              // auto-deleted
-		false,              // internal
-		false,              // no-wait
-		nil,                // arguments
-	)
-	failOnError(err, "Failed to declare an exchange: MARKETS_EXCHANGE")
-
-	err = ch.QueueBind(
-		"MARKETS_QUEUE",    // queue name
-		"MARKETS_ROUTE",    // routing key
-		"MARKETS_EXCHANGE", // exchange
-		false,
-		nil)
-	failOnError(err, "Failed to bind route: MARKETS_ROUTE")
-
-	// Set QoS for the channel (prefetch_count = 1)
-	err = ch.Qos(
-		400,   // prefetch_count
-		0,     // prefetch_size
-		false, // global (false means QoS is applied per channel, not globally)
-	)
-	if err != nil {
-		fmt.Println("Failed to set QoS: ", err.Error())
-	}
-
-	// Create a blocking queue (channel) for the messages
-	queue := make(chan Odds, maxQueueSize)
-
-	// Start worker goroutines to process database inserts in batches
-	for i := 0; i < maxWorkerCount; i++ {
-		go worker(queue)
-	}
-
-	msgs, err := ch.Consume(
-		q.Name,            // queue
-		"MARKET_CONSUMER", // consumer
-		false,             // auto-ack
-		false,             // exclusive
-		false,             // no-local
-		false,             // no-wait
-		nil,               // args
-	)
-	failOnError(err, "Failed to register a consumer")
-
-	// Start the consumer
-	consumeFromRabbitMQ(msgs, queue)
-
-	// for msg := range msgs {
-	// 	go processMessage(msg)
-	// }
-
-	fmt.Println("Waiting for messages. CRTL+C to exit")
-	select {}
-
+	Alias_priority    int     `json:"alias_priority"`
 }
 
 // Insert batched messages into MySQL DB
 func insertBatchIntoDB(messages []Odds) error {
 	// Start building the INSERT query
 	//query := "INSERT INTO odds_live (outcome_id, odd_status, outcome_name, match_id, odds, prevous_odds, direction, producer_name, market_id, producer_id, producer_status, market_name, time_stamp, processing_delays, status, status_name, alias) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE odd_status=VALUES(odd_status), odds=VALUES(odds), prevous_odds=VALUES(prevous_odds), producer_id=VALUES(producer_id), alias=VALUES(alias), market_name=VALUES(market_name), status=VALUES(status), status_name=VALUES(status_name), odd_status=VALUES(odd_status)"
-	query := "INSERT INTO odds_live (outcome_id, odd_status, outcome_name, match_id, odds, prevous_odds, direction, producer_name, market_id, producer_id, producer_status, market_name, time_stamp, processing_delays, status, status_name, alias, market_priority) VALUES "
+	query := "INSERT INTO odds_live (outcome_id, odd_status, outcome_name, match_id, odds, prevous_odds, direction, producer_name, market_id, producer_id, producer_status, market_name, time_stamp, processing_delays, status, status_name, alias, market_priority, alias_priority) VALUES "
 	vals := []interface{}{}
 
 	// Add each message's data into the query
 	for _, record := range messages {
-		query += "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?),"
+		query += "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?),"
 		vals = append(vals, record.Outcome_id, record.Odd_status, record.Outcome_name, record.Match_id,
 			record.Odds, record.Prevous_odds, record.Direction, record.Producer_name, record.Market_id,
 			record.Producer_id, record.Producer_status, record.Market_name,
-			record.Time_stamp, record.Processing_delays, record.Status, record.Status_name, record.Alias, record.Market_priority)
+			record.Time_stamp, record.Processing_delays, record.Status, record.Status_name, record.Alias, record.Market_priority, record.Alias_priority)
 	}
 
 	// Remove the last comma
 	query = query[:len(query)-1]
 
 	// Add "ON DUPLICATE KEY UPDATE" to the query
-	query += " ON DUPLICATE KEY UPDATE odd_status=VALUES(odd_status), odds=VALUES(odds), prevous_odds=VALUES(prevous_odds), producer_id=VALUES(producer_id), alias=VALUES(alias), market_name=VALUES(market_name), status=VALUES(status), status_name=VALUES(status_name), odd_status=VALUES(odd_status), market_priority=VALUES(market_priority) "
+	query += " ON DUPLICATE KEY UPDATE odd_status=VALUES(odd_status), odds=VALUES(odds), prevous_odds=VALUES(prevous_odds), producer_id=VALUES(producer_id), alias=VALUES(alias), market_name=VALUES(market_name), status=VALUES(status), status_name=VALUES(status_name), odd_status=VALUES(odd_status), market_priority=VALUES(market_priority, alias_priority=VALUES(alias_priority) "
 
 	// Execute the query
 	_, err := Db.Exec(query, vals...)
@@ -397,6 +267,7 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 					var alias string
 					var market_name_alias string
 					var market_priority int
+					var alias_priority int
 
 					if markets.Name == "Match Result" {
 						if vals.Name == markets.Selections[0].Name {
@@ -448,6 +319,14 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 						market_priority = 10
 					}
 
+					if alias == "1" {
+						alias_priority = 100
+					} else if alias == "x" {
+						alias_priority = 70
+					} else if alias == "2" {
+						alias_priority = 40
+					}
+
 					t, err := time.Parse(time.RFC3339, markets.ExpiryUtc)
 					if err != nil {
 						fmt.Println(err)
@@ -480,6 +359,7 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 						Status_name:       markets.TradingStatus,
 						Alias:             alias,
 						Market_priority:   market_priority,
+						Alias_priority:    alias_priority,
 					}
 
 					select {
@@ -537,121 +417,3 @@ func worker(queue chan Odds) {
 		}
 	}
 }
-
-// func processMessage(msg amqp.Delivery) {
-
-// 	ackStartTime := time.Now()
-
-// 	// Manually acknowledge the message
-// 	if err := msg.Ack(false); err != nil {
-// 		log.Printf("Failed to acknowledge message: %v", err)
-// 	} else {
-// 		fmt.Println("Message acknowledged.")
-// 		log.Printf(" [x] %s", msg.Body)
-// 	}
-
-// 	// Record the time after the work is done
-// 	ackStopTime := time.Now()
-
-// 	// Calculate the difference between the two times
-// 	ackStartDuration := ackStopTime.Sub(ackStartTime)
-
-// 	// Print the time difference
-// 	fmt.Printf("Acknowledgement Time taken: %v\n", ackStartDuration)
-
-// 	var marketSet MarketSet
-
-// 	if err := json.Unmarshal(msg.Body, &marketSet); err != nil {
-// 		fmt.Println(err)
-// 	}
-
-// 	// Record the current time
-// 	startTime := time.Now()
-
-// 	for _, markets := range marketSet.Markets {
-
-// 		highlights_market := []Highlights_market{
-// 			{markets.MarketType.Id, markets.TradingStatus, markets.MarketType.Name, markets.MarketType.Name, 1},
-// 		}
-
-// 		batchInsert(highlights_market)
-
-// 		for _, selections := range markets.Selections {
-// 			odds, err := json.Marshal(markets.Selections)
-// 			if err != nil {
-// 				fmt.Println("Selections not found")
-// 			}
-
-// 			// Saving individual Selections
-// 			var unmarshalselections Selections
-
-// 			err = json.Unmarshal([]byte(odds), &unmarshalselections)
-// 			if err != nil {
-// 				panic(err.Error())
-// 			}
-
-// 			for _, vals := range unmarshalselections {
-
-// 				var alias string
-// 				var market_name_alias string
-
-// 				if markets.Name == "Match Result" {
-// 					if vals.Name == markets.Selections[0].Name {
-// 						alias = "1"
-// 					} else if vals.Name == markets.Selections[1].Name {
-// 						alias = "x"
-// 					} else if vals.Name == markets.Selections[2].Name {
-// 						alias = "2"
-// 					} else {
-// 						alias = selections.Name
-// 					}
-// 				}
-
-// 				if markets.Name == "Match Result" {
-// 					market_name_alias = "1x2"
-// 				} else {
-// 					market_name_alias = markets.MarketType.Name
-// 				}
-
-// 				t, err := time.Parse(time.RFC3339, markets.ExpiryUtc)
-// 				if err != nil {
-// 					fmt.Println(err)
-// 				}
-
-// 				loc, err := time.LoadLocation("Africa/Nairobi")
-// 				if err != nil {
-// 					fmt.Println(err)
-// 				}
-// 				mstTime := t.In(loc)
-
-// 				dateVal := mstTime.Format(time.DateTime)
-
-// 				odds := []Odds{
-// 					{vals.Id, vals.TradingStatus, vals.Name, marketSet.FixtureId, vals.Decimal, vals.Decimal, selections.Range.High, markets.MarketType.Name, markets.MarketType.Id, vals.Id, 1, market_name_alias, dateVal, 1, markets.InPlay, markets.TradingStatus, alias},
-// 				}
-
-// 				oddStartTime := time.Now()
-
-// 				// Calculate the difference between the two times
-
-// 				batchInsertOddslive(odds)
-
-// 				oddStopTime := time.Now()
-
-// 				oddsInsertDuration := oddStopTime.Sub(oddStartTime)
-
-// 				// Print the time difference
-// 				fmt.Println("Odds insertion Time taken: ", oddsInsertDuration, " Started at: ", oddStartTime, " Finished at: ", oddStopTime)
-// 			}
-// 		}
-// 	}
-
-// 	// Record the time after the work is done
-// 	endTime := time.Now()
-
-// 	// Calculate the difference between the two times
-// 	duration := endTime.Sub(startTime)
-
-// 	// Print the time difference
-// 	fmt.Printf("DB insertion time for Markets: %v\n", duration)
-// }
