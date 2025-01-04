@@ -285,6 +285,14 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 						} else if vals.Name == markets.Selections[2].Name {
 							alias = "X2"
 						}
+					} else if markets.Name == "Half-time Result" { //Half-time Result
+						if vals.Name == markets.Selections[0].Name {
+							alias = "1"
+						} else if vals.Name == markets.Selections[1].Name {
+							alias = "x"
+						} else if vals.Name == markets.Selections[2].Name {
+							alias = "2"
+						} //Half-time Result
 					} else {
 						alias = vals.Name
 					}
