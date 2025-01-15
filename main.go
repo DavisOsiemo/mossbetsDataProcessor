@@ -382,7 +382,7 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 						Direction:         selections.Range.High,
 						Producer_name:     markets.MarketType.Name,
 						Market_id:         markets.MarketType.Id,
-						Producer_id:       vals.Id,
+						Producer_id:       markets.Id,
 						Producer_status:   1,
 						Market_name:       market_name_alias,
 						Time_stamp:        dateVal,
