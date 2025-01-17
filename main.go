@@ -210,16 +210,16 @@ func insertBatchIntoDB(messages []Odds) error {
 	query1 = strings.Replace(query1, "(?)", inClause, 1)
 
 	// Query the database for existing match IDs
-	rows, err := Db.Query(query1, matchIDSlice...)
+	rows1, err := Db.Query(query1, matchIDSlice...)
 	if err != nil {
 		return fmt.Errorf("error checking match_ids in fixture table: %w", err)
 	}
-	defer rows.Close()
+	defer rows1.Close()
 
 	// Collect existing match IDs
-	for rows.Next() {
+	for rows1.Next() {
 		var matchID int
-		if err := rows.Scan(&matchID); err != nil {
+		if err := rows1.Scan(&matchID); err != nil {
 			return fmt.Errorf("error scanning match_id: %w", err)
 		}
 		existingMatchIDs[matchID] = struct{}{}
@@ -252,7 +252,7 @@ func insertBatchIntoDB(messages []Odds) error {
 	query += " ON DUPLICATE KEY UPDATE odd_status=VALUES(odd_status), odds=VALUES(odds), prevous_odds=VALUES(prevous_odds), producer_id=VALUES(producer_id), alias=VALUES(alias), market_name=VALUES(market_name), status=VALUES(status), status_name=VALUES(status_name), odd_status=VALUES(odd_status), market_priority=VALUES(market_priority), alias_priority=VALUES(alias_priority) "
 
 	// Execute the query
-	_, err := Db.Exec(query, vals...)
+	_, err = Db.Exec(query, vals...)
 	return err
 }
 
