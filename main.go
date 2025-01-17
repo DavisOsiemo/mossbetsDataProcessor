@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
-	"time"
-
 	"encoding/json"
+	"fmt"
+	"strings"
+	"time"
 
 	"github.com/rs/zerolog/log"
 
@@ -188,8 +188,51 @@ type Odds struct {
 
 // Insert batched messages into MySQL DB
 func insertBatchIntoDB(messages []Odds) error {
+
+	// Step 1: Collect unique match_id values from messages
+	matchIDs := make(map[int]struct{}) // Using a map to ensure uniqueness
+	for _, record := range messages {
+		matchIDs[record.Match_id] = struct{}{}
+	}
+
+	// Step 2: Check if all match_ids exist in the fixture table
+	existingMatchIDs := make(map[int]struct{})
+	query1 := "SELECT match_id FROM fixture WHERE match_id IN (?)"
+
+	// Convert map keys to a slice for the query
+	var matchIDSlice []interface{}
+	for matchID := range matchIDs {
+		matchIDSlice = append(matchIDSlice, matchID)
+	}
+
+	// Build the IN clause dynamically
+	inClause := "(" + strings.Repeat("?,", len(matchIDSlice)-1) + "?)"
+	query1 = strings.Replace(query1, "(?)", inClause, 1)
+
+	// Query the database for existing match IDs
+	rows, err := Db.Query(query1, matchIDSlice...)
+	if err != nil {
+		return fmt.Errorf("error checking match_ids in fixture table: %w", err)
+	}
+	defer rows.Close()
+
+	// Collect existing match IDs
+	for rows.Next() {
+		var matchID int
+		if err := rows.Scan(&matchID); err != nil {
+			return fmt.Errorf("error scanning match_id: %w", err)
+		}
+		existingMatchIDs[matchID] = struct{}{}
+	}
+
+	// Step 3: Validate the messages
+	for _, record := range messages {
+		if _, exists := existingMatchIDs[record.Match_id]; !exists {
+			return fmt.Errorf("match_id %d does not exist in fixture table", record.Match_id)
+		}
+	}
+
 	// Start building the INSERT query
-	//query := "INSERT INTO odds_live (outcome_id, odd_status, outcome_name, match_id, odds, prevous_odds, direction, producer_name, market_id, producer_id, producer_status, market_name, time_stamp, processing_delays, status, status_name, alias) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE odd_status=VALUES(odd_status), odds=VALUES(odds), prevous_odds=VALUES(prevous_odds), producer_id=VALUES(producer_id), alias=VALUES(alias), market_name=VALUES(market_name), status=VALUES(status), status_name=VALUES(status_name), odd_status=VALUES(odd_status)"
 	query := "INSERT INTO odds_live (outcome_id, odd_status, outcome_name, match_id, odds, prevous_odds, direction, producer_name, market_id, producer_id, producer_status, market_name, time_stamp, processing_delays, status, status_name, alias, market_priority, alias_priority) VALUES "
 	vals := []interface{}{}
 
