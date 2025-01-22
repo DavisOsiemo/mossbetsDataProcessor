@@ -19,8 +19,8 @@ func failOnError(err error, msg string) {
 
 const (
 	maxQueueSize   = 2000
-	maxWorkerCount = 1
-	batchSize      = 10 // Number of rows per batch
+	maxWorkerCount = 2
+	batchSize      = 20 // Number of rows per batch
 )
 
 func main() {
@@ -228,7 +228,8 @@ func insertBatchIntoDB(messages []Odds) error {
 	// Step 3: Validate the messages
 	for _, record := range messages {
 		if _, exists := existingMatchIDs[record.Match_id]; !exists {
-			return fmt.Errorf("match_id %d does not exist in fixture table", record.Match_id)
+			fmt.Println("match_id does not exist in fixture table", record.Match_id)
+			continue
 		}
 	}
 
