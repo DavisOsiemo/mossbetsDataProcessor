@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -189,49 +188,49 @@ type Odds struct {
 // Insert batched messages into MySQL DB
 func insertBatchIntoDB(messages []Odds) error {
 
-	// Step 1: Collect unique match_id values from messages
-	matchIDs := make(map[int]struct{}) // Using a map to ensure uniqueness
-	for _, record := range messages {
-		matchIDs[record.Match_id] = struct{}{}
-	}
+	// // Step 1: Collect unique match_id values from messages
+	// matchIDs := make(map[int]struct{}) // Using a map to ensure uniqueness
+	// for _, record := range messages {
+	// 	matchIDs[record.Match_id] = struct{}{}
+	// }
 
-	// Step 2: Check if all match_ids exist in the fixture table
-	existingMatchIDs := make(map[int]struct{})
-	query1 := "SELECT match_id FROM fixture WHERE match_id IN (?)"
+	// // Step 2: Check if all match_ids exist in the fixture table
+	// existingMatchIDs := make(map[int]struct{})
+	// query1 := "SELECT match_id FROM fixture WHERE match_id IN (?)"
 
-	// Convert map keys to a slice for the query
-	var matchIDSlice []interface{}
-	for matchID := range matchIDs {
-		matchIDSlice = append(matchIDSlice, matchID)
-	}
+	// // Convert map keys to a slice for the query
+	// var matchIDSlice []interface{}
+	// for matchID := range matchIDs {
+	// 	matchIDSlice = append(matchIDSlice, matchID)
+	// }
 
-	// Build the IN clause dynamically
-	inClause := "(" + strings.Repeat("?,", len(matchIDSlice)-1) + "?)"
-	query1 = strings.Replace(query1, "(?)", inClause, 1)
+	// // Build the IN clause dynamically
+	// inClause := "(" + strings.Repeat("?,", len(matchIDSlice)-1) + "?)"
+	// query1 = strings.Replace(query1, "(?)", inClause, 1)
 
-	// Query the database for existing match IDs
-	rows1, err := Db.Query(query1, matchIDSlice...)
-	if err != nil {
-		return fmt.Errorf("error checking match_ids in fixture table: %w", err)
-	}
-	defer rows1.Close()
+	// // Query the database for existing match IDs
+	// rows1, err := Db.Query(query1, matchIDSlice...)
+	// if err != nil {
+	// 	return fmt.Errorf("error checking match_ids in fixture table: %w", err)
+	// }
+	// defer rows1.Close()
 
-	// Collect existing match IDs
-	for rows1.Next() {
-		var matchID int
-		if err := rows1.Scan(&matchID); err != nil {
-			return fmt.Errorf("error scanning match_id: %w", err)
-		}
-		existingMatchIDs[matchID] = struct{}{}
-	}
+	// // Collect existing match IDs
+	// for rows1.Next() {
+	// 	var matchID int
+	// 	if err := rows1.Scan(&matchID); err != nil {
+	// 		return fmt.Errorf("error scanning match_id: %w", err)
+	// 	}
+	// 	existingMatchIDs[matchID] = struct{}{}
+	// }
 
-	// Step 3: Validate the messages
-	for _, record := range messages {
-		if _, exists := existingMatchIDs[record.Match_id]; !exists {
-			fmt.Println("match_id does not exist in fixture table", record.Match_id)
-			continue
-		}
-	}
+	// // Step 3: Validate the messages
+	// for _, record := range messages {
+	// 	if _, exists := existingMatchIDs[record.Match_id]; !exists {
+	// 		fmt.Println("match_id does not exist in fixture table", record.Match_id)
+	// 		continue
+	// 	}
+	// }
 
 	// Start building the INSERT query
 	query := "INSERT INTO odds_live (outcome_id, odd_status, outcome_name, match_id, odds, prevous_odds, direction, producer_name, market_id, producer_id, producer_status, market_name, time_stamp, processing_delays, status, status_name, alias, market_priority, alias_priority) VALUES "
