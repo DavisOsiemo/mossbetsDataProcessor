@@ -19,8 +19,8 @@ func failOnError(err error, msg string) {
 
 const (
 	maxQueueSize   = 500
-	maxWorkerCount = 1
-	batchSize      = 5 // Number of rows per batch
+	maxWorkerCount = 2
+	batchSize      = 6 // Number of rows per batch
 )
 
 func main() {
