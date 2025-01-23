@@ -18,7 +18,7 @@ func failOnError(err error, msg string) {
 
 const (
 	maxQueueSize   = 2000
-	maxWorkerCount = 2
+	maxWorkerCount = 1
 	batchSize      = 15 // Number of rows per batch
 )
 
@@ -253,7 +253,6 @@ func insertBatchIntoDB(messages []Odds) error {
 
 	// Execute the query
 	_, err := Db.Exec(query, vals...)
-	fmt.Println(query)
 	return err
 }
 
