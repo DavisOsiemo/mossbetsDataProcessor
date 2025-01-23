@@ -253,6 +253,7 @@ func insertBatchIntoDB(messages []Odds) error {
 
 	// Execute the query
 	_, err := Db.Exec(query, vals...)
+	fmt.Println(query)
 	return err
 }
 
