@@ -472,6 +472,7 @@ func worker(queue chan Odds) {
 		batch = append(batch, msg)
 
 		fmt.Println("Batch size is: ", len(batch))
+		fmt.Println("Queue size is: ", len(queue))
 
 		// If batch is full, insert it into DB
 		if len(batch) >= batchSize {
