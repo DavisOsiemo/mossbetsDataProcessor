@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
@@ -12,7 +13,13 @@ import (
 
 var Db *sql.DB
 
-func MysqlDbConnect() {
+func MysqlDbConnect() *sql.DB {
+
+	// Check if the connection is already established
+	if Db != nil {
+		return Db
+	}
+
 	envError := godotenv.Load(".env")
 
 	if envError != nil {
@@ -33,8 +40,12 @@ func MysqlDbConnect() {
 
 	Db, err = sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
-		log.Fatal(err.Error())
+		fmt.Println(err.Error())
 	}
+
+	Db.SetMaxOpenConns(30)                 // Maximum number of open connections
+	Db.SetMaxIdleConns(5)                  // Maximum number of idle connections
+	Db.SetConnMaxLifetime(3 * time.Minute) // Connection lifetime (0 means no limit)
 
 	pingErr := Db.Ping()
 	if pingErr != nil {
@@ -42,4 +53,5 @@ func MysqlDbConnect() {
 	}
 	fmt.Println("Connected to MySQL DB.")
 
+	return Db
 }
