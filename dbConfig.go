@@ -43,9 +43,9 @@ func MysqlDbConnect() *sql.DB {
 		fmt.Println(err.Error())
 	}
 
-	Db.SetMaxOpenConns(30)                 // Maximum number of open connections
-	Db.SetMaxIdleConns(5)                  // Maximum number of idle connections
-	Db.SetConnMaxLifetime(3 * time.Minute) // Connection lifetime (0 means no limit)
+	Db.SetMaxOpenConns(20)                  // Maximum number of open connections
+	Db.SetMaxIdleConns(2)                   // Maximum number of idle connections
+	Db.SetConnMaxLifetime(20 * time.Minute) // Connection lifetime (0 means no limit)
 
 	pingErr := Db.Ping()
 	if pingErr != nil {
