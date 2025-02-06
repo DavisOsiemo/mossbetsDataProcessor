@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/joho/godotenv"
 )
 
 var Db *sql.DB
@@ -20,18 +19,29 @@ func MysqlDbConnect() *sql.DB {
 		return Db
 	}
 
-	envError := godotenv.Load(".env")
+	// envError := godotenv.Load(".env")
 
-	if envError != nil {
-		log.Fatalf("Error loading .env file")
+	// if envError != nil {
+	// 	log.Fatalf("Error loading .env file")
+	// }
+
+	// Fetch environment variables
+	dbUser := os.Getenv("DB_USERNAME_PROD")
+	dbPass := os.Getenv("DB_PASS_PROD")
+	dbAddr := os.Getenv("DB_ADDR_PROD")
+	dbNet := os.Getenv("DB_NET")
+	dbName := os.Getenv("DB_DATABASE")
+
+	if dbUser == "" || dbPass == "" || dbAddr == "" || dbNet == "" || dbName == "" {
+		log.Fatal("Missing one or more required environment variables.")
 	}
 
 	cfg := mysql.Config{
-		User:                 os.Getenv("DB_USERNAME_PROD"),
-		Passwd:               os.Getenv("DB_PASS_PROD"),
-		Addr:                 os.Getenv("DB_ADDR_PROD"),
-		Net:                  os.Getenv("DB_NET"),
-		DBName:               os.Getenv("DB_DATABASE"),
+		User:                 dbUser,
+		Passwd:               dbPass,
+		Addr:                 dbAddr,
+		Net:                  dbNet,
+		DBName:               dbName,
 		AllowNativePasswords: true,
 	}
 

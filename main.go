@@ -351,7 +351,7 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 					if markets.Name == "Match Result" {
 						market_name_alias = "1x2"
 					} else {
-						market_name_alias = markets.MarketType.Name
+						market_name_alias = markets.Name
 					}
 
 					if markets.MarketType.Id == 2 {
