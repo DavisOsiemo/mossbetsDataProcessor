@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/rs/zerolog/log"
@@ -19,14 +20,14 @@ func failOnError(err error, msg string) {
 const (
 	maxQueueSize   = 4000
 	maxWorkerCount = 2
-	batchSize      = 100 // Number of rows per batch
+	batchSize      = 100
 )
 
 func main() {
 
 	MysqlDbConnect()
 
-	conn, err := amqp.Dial("amqp://liden:lID3n@10.132.0.28:5672/")
+	conn, err := amqp.Dial(os.Getenv("DB_RABBIT"))
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
