@@ -26,9 +26,9 @@ func MysqlDbConnect() *sql.DB {
 	// }
 
 	// Fetch environment variables
-	dbUser := os.Getenv("DB_USERNAME_PROD")
-	dbPass := os.Getenv("DB_PASS_PROD")
-	dbAddr := os.Getenv("DB_ADDR_PROD")
+	dbUser := os.Getenv("DB_USERNAME_UAT")
+	dbPass := os.Getenv("DB_PASS_UAT")
+	dbAddr := os.Getenv("DB_ADDR_UAT")
 	dbNet := os.Getenv("DB_NET")
 	dbName := os.Getenv("DB_DATABASE")
 
