@@ -321,7 +321,7 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 						} else if vals.Name == markets.Selections[2].Name {
 							alias = "2"
 						}
-					} else if markets.Name == "Double Chance" { //Double Chance
+					} else if markets.Name == "Double Chance" {
 						if vals.Name == markets.Selections[0].Name {
 							alias = "1X"
 						} else if vals.Name == markets.Selections[1].Name {
@@ -329,15 +329,7 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 						} else if vals.Name == markets.Selections[2].Name {
 							alias = "X2"
 						}
-					} else if markets.Name == "Half-time Result" { //Half-time Result
-						if vals.Name == markets.Selections[0].Name {
-							alias = "1"
-						} else if vals.Name == markets.Selections[1].Name {
-							alias = "x"
-						} else if vals.Name == markets.Selections[2].Name {
-							alias = "2"
-						} //Half-time Result
-					} else if markets.Name == "Match Result (Excluding Overtime)" { //Match Result (Excluding Overtime)
+					} else if markets.Name == "Half-time Result" {
 						if vals.Name == markets.Selections[0].Name {
 							alias = "1"
 						} else if vals.Name == markets.Selections[1].Name {
@@ -345,10 +337,25 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 						} else if vals.Name == markets.Selections[2].Name {
 							alias = "2"
 						}
+					} else if markets.Name == "Match Result (Excluding Overtime)" {
+						if vals.Name == markets.Selections[0].Name {
+							alias = "1"
+						} else if vals.Name == markets.Selections[1].Name {
+							alias = "x"
+						} else if vals.Name == markets.Selections[2].Name {
+							alias = "2"
+						}
+					} else if markets.Name == "Both Teams To Score" {
+						if vals.Name == markets.Selections[0].Name {
+							alias = "Y"
+						} else if vals.Name == markets.Selections[1].Name {
+							alias = "N"
+						}
 					} else {
 						alias = vals.Name
 					}
 
+					// Rename markets
 					if markets.Name == "Match Result" {
 						market_name_alias = "1x2"
 					} else {

@@ -14,23 +14,15 @@ var Db *sql.DB
 
 func MysqlDbConnect() *sql.DB {
 
-	// Check if the connection is already established
 	if Db != nil {
 		return Db
 	}
 
-	// envError := godotenv.Load(".env")
-
-	// if envError != nil {
-	// 	log.Fatalf("Error loading .env file")
-	// }
-
-	// Fetch environment variables
 	dbUser := os.Getenv("DB_USERNAME_UAT")
 	dbPass := os.Getenv("DB_PASS_UAT")
 	dbAddr := os.Getenv("DB_ADDR_UAT")
-	dbNet := os.Getenv("DB_NET")
-	dbName := os.Getenv("DB_DATABASE")
+	dbNet := os.Getenv("DB_NET_UAT")
+	dbName := os.Getenv("DB_DATABASE_UAT")
 
 	if dbUser == "" || dbPass == "" || dbAddr == "" || dbNet == "" || dbName == "" {
 		log.Fatal("Missing one or more required environment variables.")
