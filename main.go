@@ -396,18 +396,17 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 							alias = "U"
 						}
 					} else if markets.Name == "Match Result and Total Goals Over / Under 1.50" {
-						//1O, 1U, 2O, 2U, XO, XU
 						if vals.Name == markets.Selections[0].Name {
 							alias = "1O"
 						} else if vals.Name == markets.Selections[1].Name {
 							alias = "1U"
-						} else if vals.Name == markets.Selections[4].Name {
-							alias = "XO"
-						} else if vals.Name == markets.Selections[5].Name {
-							alias = "XU"
 						} else if vals.Name == markets.Selections[2].Name {
-							alias = "2O"
+							alias = "XO"
 						} else if vals.Name == markets.Selections[3].Name {
+							alias = "XU"
+						} else if vals.Name == markets.Selections[4].Name {
+							alias = "2O"
+						} else if vals.Name == markets.Selections[5].Name {
 							alias = "2U"
 						}
 					} else if markets.Name == "Match Result and Total Goals Over / Under 2.50" {
@@ -415,13 +414,13 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 							alias = "1O"
 						} else if vals.Name == markets.Selections[1].Name {
 							alias = "1U"
-						} else if vals.Name == markets.Selections[4].Name {
-							alias = "XO"
-						} else if vals.Name == markets.Selections[5].Name {
-							alias = "XU"
 						} else if vals.Name == markets.Selections[2].Name {
-							alias = "2O"
+							alias = "XO"
 						} else if vals.Name == markets.Selections[3].Name {
+							alias = "XU"
+						} else if vals.Name == markets.Selections[4].Name {
+							alias = "2O"
+						} else if vals.Name == markets.Selections[5].Name {
 							alias = "2U"
 						}
 					} else if markets.Name == "Match Result and Total Goals Over / Under 3.50" {
@@ -429,13 +428,13 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 							alias = "1O"
 						} else if vals.Name == markets.Selections[1].Name {
 							alias = "1U"
-						} else if vals.Name == markets.Selections[4].Name {
-							alias = "XO"
-						} else if vals.Name == markets.Selections[5].Name {
-							alias = "XU"
 						} else if vals.Name == markets.Selections[2].Name {
-							alias = "2O"
+							alias = "XO"
 						} else if vals.Name == markets.Selections[3].Name {
+							alias = "XU"
+						} else if vals.Name == markets.Selections[4].Name {
+							alias = "2O"
+						} else if vals.Name == markets.Selections[5].Name {
 							alias = "2U"
 						}
 					} else if markets.Name == "Match Result and Total Goals Over / Under 4.50" {
@@ -443,13 +442,13 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 							alias = "1O"
 						} else if vals.Name == markets.Selections[1].Name {
 							alias = "1U"
-						} else if vals.Name == markets.Selections[4].Name {
-							alias = "XO"
-						} else if vals.Name == markets.Selections[5].Name {
-							alias = "XU"
 						} else if vals.Name == markets.Selections[2].Name {
-							alias = "2O"
+							alias = "XO"
 						} else if vals.Name == markets.Selections[3].Name {
+							alias = "XU"
+						} else if vals.Name == markets.Selections[4].Name {
+							alias = "2O"
+						} else if vals.Name == markets.Selections[5].Name {
 							alias = "2U"
 						}
 					} else if markets.Name == "Match Result and Total Goals Over / Under 5.50" {
@@ -457,13 +456,13 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 							alias = "1O"
 						} else if vals.Name == markets.Selections[1].Name {
 							alias = "1U"
-						} else if vals.Name == markets.Selections[4].Name {
-							alias = "XO"
-						} else if vals.Name == markets.Selections[5].Name {
-							alias = "XU"
 						} else if vals.Name == markets.Selections[2].Name {
-							alias = "2O"
+							alias = "XO"
 						} else if vals.Name == markets.Selections[3].Name {
+							alias = "XU"
+						} else if vals.Name == markets.Selections[4].Name {
+							alias = "2O"
+						} else if vals.Name == markets.Selections[5].Name {
 							alias = "2U"
 						}
 					} else {
