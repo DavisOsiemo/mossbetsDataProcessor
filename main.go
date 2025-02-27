@@ -355,9 +355,11 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 						alias = vals.Name
 					}
 
-					// Rename markets
+					// Both Teams To Score
 					if markets.Name == "Match Result" {
 						market_name_alias = "1x2"
+					} else if markets.Name == "Both Teams To Score" {
+						market_name_alias = "GG"
 					} else {
 						market_name_alias = markets.Name
 					}
