@@ -328,10 +328,13 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 					} else if markets.Name == "Double Chance" {
 						if vals.Name == markets.Selections[0].Name {
 							alias = "1X"
+							fmt.Println("Outcome_name for double chance 1X:: ", outcome_name)
 						} else if vals.Name == markets.Selections[1].Name {
 							alias = "12"
+							fmt.Println("Outcome_name for double chance 12:: ", outcome_name)
 						} else if vals.Name == markets.Selections[2].Name {
 							alias = "X2"
+							fmt.Println("Outcome_name for double chance X2:: ", outcome_name)
 						}
 					} else if markets.Name == "Half Time Double Chance" {
 						if vals.Name == markets.Selections[0].Name {
@@ -471,9 +474,8 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 						}
 					} else {
 						alias = vals.Name
+						outcome_name = vals.Name
 					}
-
-					outcome_name = vals.Name
 
 					// Both Teams To Score
 					if markets.Name == "Match Result" {
