@@ -394,16 +394,22 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 					} else if markets.Name == "Match Result and Total Goals Over / Under 3.50" {
 						if vals.Name == markets.Selections[0].Name {
 							alias = "1O"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[1].Name {
 							alias = "1U"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[2].Name {
 							alias = "XO"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[3].Name {
 							alias = "XU"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[4].Name {
 							alias = "2O"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[5].Name {
 							alias = "2U"
+							outcome_name = vals.Name
 						}
 					} else if markets.Name == "Match Result and Total Goals Over / Under 4.50" {
 						if vals.Name == markets.Selections[0].Name {
