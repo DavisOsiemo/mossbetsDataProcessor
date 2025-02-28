@@ -309,6 +309,7 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 				for _, vals := range unmarshalselections {
 
 					var alias string
+					var outcome_name string
 					var market_name_alias string
 					var market_priority int
 					var alias_priority int
@@ -316,10 +317,13 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 					if markets.Name == "Match Result" { //1x2
 						if vals.Name == markets.Selections[0].Name {
 							alias = "1"
+							outcome_name = "1"
 						} else if vals.Name == markets.Selections[1].Name {
 							alias = "x"
+							outcome_name = "x"
 						} else if vals.Name == markets.Selections[2].Name {
 							alias = "2"
+							outcome_name = "2"
 						}
 					} else if markets.Name == "Double Chance" {
 						if vals.Name == markets.Selections[0].Name {
@@ -467,6 +471,7 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 						}
 					} else {
 						alias = vals.Name
+						outcome_name = vals.Name
 					}
 
 					// Both Teams To Score
@@ -540,7 +545,7 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 					odd := Odds{
 						Outcome_id:        vals.Id,
 						Odd_status:        vals.TradingStatus,
-						Outcome_name:      vals.Name,
+						Outcome_name:      outcome_name,
 						Match_id:          marketSet.FixtureId,
 						Odds:              vals.Decimal,
 						Prevous_odds:      vals.Decimal,
