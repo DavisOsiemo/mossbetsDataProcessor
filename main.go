@@ -318,26 +318,34 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 					} else if markets.Name == "Both Teams To Score" {
 						if vals.Name == markets.Selections[0].Name {
 							alias = "Y"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[1].Name {
 							alias = "N"
+							outcome_name = vals.Name
 						}
 					} else if markets.Name == "Half Time Both Teams To Score" {
 						if vals.Name == markets.Selections[0].Name {
 							alias = "Y"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[1].Name {
 							alias = "N"
+							outcome_name = vals.Name
 						}
 					} else if markets.Name == "Total Goals Over / Under 1.50" {
 						if vals.Name == markets.Selections[0].Name {
 							alias = "O"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[1].Name {
 							alias = "U"
+							outcome_name = vals.Name
 						}
 					} else if markets.Name == "Total Goals Over / Under 2.50" {
 						if vals.Name == markets.Selections[0].Name {
 							alias = "O"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[1].Name {
 							alias = "U"
+							outcome_name = vals.Name
 						}
 					} else if markets.Name == "Total Goals Over / Under 3.50" {
 						if vals.Name == markets.Selections[0].Name {
@@ -366,30 +374,42 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 					} else if markets.Name == "Match Result and Total Goals Over / Under 1.50" {
 						if vals.Name == markets.Selections[0].Name {
 							alias = "1O"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[1].Name {
 							alias = "1U"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[2].Name {
 							alias = "XO"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[3].Name {
 							alias = "XU"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[4].Name {
 							alias = "2O"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[5].Name {
 							alias = "2U"
+							outcome_name = vals.Name
 						}
 					} else if markets.Name == "Match Result and Total Goals Over / Under 2.50" {
 						if vals.Name == markets.Selections[0].Name {
 							alias = "1O"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[1].Name {
 							alias = "1U"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[2].Name {
 							alias = "XO"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[3].Name {
 							alias = "XU"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[4].Name {
 							alias = "2O"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[5].Name {
 							alias = "2U"
+							outcome_name = vals.Name
 						}
 					} else if markets.Name == "Match Result and Total Goals Over / Under 3.50" {
 						if vals.Name == markets.Selections[0].Name {
@@ -414,30 +434,42 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 					} else if markets.Name == "Match Result and Total Goals Over / Under 4.50" {
 						if vals.Name == markets.Selections[0].Name {
 							alias = "1O"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[1].Name {
 							alias = "1U"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[2].Name {
 							alias = "XO"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[3].Name {
 							alias = "XU"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[4].Name {
 							alias = "2O"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[5].Name {
 							alias = "2U"
+							outcome_name = vals.Name
 						}
 					} else if markets.Name == "Match Result and Total Goals Over / Under 5.50" {
 						if vals.Name == markets.Selections[0].Name {
 							alias = "1O"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[1].Name {
 							alias = "1U"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[2].Name {
 							alias = "XO"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[3].Name {
 							alias = "XU"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[4].Name {
 							alias = "2O"
+							outcome_name = vals.Name
 						} else if vals.Name == markets.Selections[5].Name {
 							alias = "2U"
+							outcome_name = vals.Name
 						}
 					} else {
 						alias = vals.Name
