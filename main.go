@@ -328,12 +328,15 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 					} else if markets.Name == "Double Chance" {
 						if vals.Name == markets.Selections[0].Name {
 							alias = "1X"
+							outcome_name = vals.Name
 							fmt.Println("Outcome_name for double chance 1X:: ", outcome_name)
 						} else if vals.Name == markets.Selections[1].Name {
 							alias = "12"
+							outcome_name = vals.Name
 							fmt.Println("Outcome_name for double chance 12:: ", outcome_name)
 						} else if vals.Name == markets.Selections[2].Name {
 							alias = "X2"
+							outcome_name = vals.Name
 							fmt.Println("Outcome_name for double chance X2:: ", outcome_name)
 						}
 					} else if markets.Name == "Half Time Double Chance" {
