@@ -471,8 +471,9 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 						}
 					} else {
 						alias = vals.Name
-						outcome_name = vals.Name
 					}
+
+					outcome_name = vals.Name
 
 					// Both Teams To Score
 					if markets.Name == "Match Result" {
