@@ -74,10 +74,10 @@ func main() {
 		fmt.Println("Failed to set QoS: ", err.Error())
 	}
 
-	// Create a blocking queue (channel) for the messages
+	// Blocking queue (channel) for the messages
 	queue := make(chan Odds, maxQueueSize)
 
-	// Start worker goroutines to process database inserts in batches
+	// Worker goroutines to process database inserts in batches
 	for i := 0; i < maxWorkerCount; i++ {
 		go worker(queue)
 	}
@@ -276,11 +276,9 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 						} else if vals.Name == markets.Selections[1].Name {
 							alias = "12"
 							outcome_name = "12"
-							fmt.Println("Outcome_name for double chance 12:: ", outcome_name)
 						} else if vals.Name == markets.Selections[2].Name {
 							alias = "X2"
 							outcome_name = "X2"
-							fmt.Println("Outcome_name for double chance X2:: ", outcome_name)
 						}
 					} else if markets.Name == "Half Time Double Chance" {
 						if vals.Name == markets.Selections[0].Name {
