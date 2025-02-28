@@ -189,55 +189,9 @@ type Odds struct {
 // Insert batched messages into MySQL DB
 func insertBatchIntoDB(messages []Odds) error {
 
-	// // Step 1: Collect unique match_id values from messages
-	// matchIDs := make(map[int]struct{}) // Using a map to ensure uniqueness
-	// for _, record := range messages {
-	// 	matchIDs[record.Match_id] = struct{}{}
-	// }
-
-	// // Step 2: Check if all match_ids exist in the fixture table
-	// existingMatchIDs := make(map[int]struct{})
-	// query1 := "SELECT match_id FROM fixture WHERE match_id IN (?)"
-
-	// // Convert map keys to a slice for the query
-	// var matchIDSlice []interface{}
-	// for matchID := range matchIDs {
-	// 	matchIDSlice = append(matchIDSlice, matchID)
-	// }
-
-	// // Build the IN clause dynamically
-	// inClause := "(" + strings.Repeat("?,", len(matchIDSlice)-1) + "?)"
-	// query1 = strings.Replace(query1, "(?)", inClause, 1)
-
-	// // Query the database for existing match IDs
-	// rows1, err := Db.Query(query1, matchIDSlice...)
-	// if err != nil {
-	// 	return fmt.Errorf("error checking match_ids in fixture table: %w", err)
-	// }
-	// defer rows1.Close()
-
-	// // Collect existing match IDs
-	// for rows1.Next() {
-	// 	var matchID int
-	// 	if err := rows1.Scan(&matchID); err != nil {
-	// 		return fmt.Errorf("error scanning match_id: %w", err)
-	// 	}
-	// 	existingMatchIDs[matchID] = struct{}{}
-	// }
-
-	// // Step 3: Validate the messages
-	// for _, record := range messages {
-	// 	if _, exists := existingMatchIDs[record.Match_id]; !exists {
-	// 		fmt.Println("match_id does not exist in fixture table", record.Match_id)
-	// 		continue
-	// 	}
-	// }
-
-	// Start building the INSERT query
 	query := "INSERT INTO odds_live (outcome_id, odd_status, outcome_name, match_id, odds, prevous_odds, direction, producer_name, market_id, producer_id, producer_status, market_name, time_stamp, processing_delays, status, status_name, alias, market_priority, alias_priority) VALUES "
 	vals := []interface{}{}
 
-	// Add each message's data into the query
 	for _, record := range messages {
 		query += "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?),"
 		vals = append(vals, record.Outcome_id, record.Odd_status, record.Outcome_name, record.Match_id,
@@ -246,25 +200,20 @@ func insertBatchIntoDB(messages []Odds) error {
 			record.Time_stamp, record.Processing_delays, record.Status, record.Status_name, record.Alias, record.Market_priority, record.Alias_priority)
 	}
 
-	// Remove the last comma
 	query = query[:len(query)-1]
 
-	// Add "ON DUPLICATE KEY UPDATE" to the query
 	query += " ON DUPLICATE KEY UPDATE odd_status=VALUES(odd_status), outcome_name=VALUES(outcome_name), odds=VALUES(odds), prevous_odds=VALUES(prevous_odds), producer_id=VALUES(producer_id), alias=VALUES(alias), market_name=VALUES(market_name), status=VALUES(status), status_name=VALUES(status_name), odd_status=VALUES(odd_status), market_priority=VALUES(market_priority), alias_priority=VALUES(alias_priority) "
 
-	// Execute the query
 	_, err := Db.Exec(query, vals...)
 	return err
 }
 
-// RabbitMQ Consumer
 func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 
 	for msg := range msgs {
 
 		ackStartTime := time.Now()
 
-		// Manually acknowledge the message
 		if err := msg.Ack(false); err != nil {
 			log.Printf("Failed to acknowledge message: %v", err.Error())
 		} else {
@@ -272,13 +221,10 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 			log.Printf(" [x] %s", msg.Body)
 		}
 
-		// Record the time after the work is done
 		ackStopTime := time.Now()
 
-		// Calculate the difference between the two times
 		ackStartDuration := ackStopTime.Sub(ackStartTime)
 
-		// Print the time difference
 		fmt.Printf("Acknowledgement Time taken: %v\n", ackStartDuration)
 
 		var marketSet MarketSet
@@ -287,7 +233,6 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 			fmt.Println(err)
 		}
 
-		// Record the current time
 		startTime := time.Now()
 
 		for _, markets := range marketSet.Markets {
@@ -298,7 +243,6 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 					fmt.Println("Selections not found")
 				}
 
-				// Saving individual Selections
 				var unmarshalselections Selections
 
 				err = json.Unmarshal([]byte(odds), &unmarshalselections)
@@ -580,9 +524,9 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 
 					select {
 					case queue <- odd: //Send message to queue
-					// Message successfully added to queue
-					default: //If queue is full, drop the message. Slows down the rate at which messages are consumed
-						// Backpressure Implementation
+
+					default:
+						// Backpressure - If queue is full, drop the message. Slows down the rate at which messages are consumed
 						// Add a small delay to avoid flooding the queue
 						time.Sleep(100 * time.Millisecond)
 
@@ -592,24 +536,19 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 			}
 		}
 
-		// Record the time after the work is done
 		endTime := time.Now()
 
-		// Calculate the difference between the two times
 		duration := endTime.Sub(startTime)
 
-		// Print the time difference
 		fmt.Printf("DB insertion time for Markets: %v\n", duration)
 
 	}
 }
 
-// Worker that takes messages from the queue and inserts them into DB in batches
 func worker(queue chan Odds) {
 	var batch []Odds
 
 	for msg := range queue {
-		// Add message to batch
 		batch = append(batch, msg)
 
 		fmt.Println("Batch size is: ", len(batch))
@@ -622,12 +561,10 @@ func worker(queue chan Odds) {
 			} else {
 				fmt.Printf("Inserted %d messages\n", len(batch))
 			}
-			// Reset batch for next group of messages
 			batch = nil
 		}
 	}
 
-	// Insert any remaining messages after the loop
 	if len(batch) > 0 {
 		if err := insertBatchIntoDB(batch); err != nil {
 			fmt.Println("Error inserting final batch into DB:", err)
