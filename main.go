@@ -295,12 +295,15 @@ func consumeFromRabbitMQ(msgs <-chan amqp.Delivery, queue chan Odds) {
 						if vals.Name == markets.Selections[0].Name {
 							alias = "1"
 							outcome_name = "1"
+							fmt.Println("Outcome name is::::", outcome_name)
 						} else if vals.Name == markets.Selections[1].Name {
 							alias = "x"
 							outcome_name = "x"
+							fmt.Println("Outcome name is::::", outcome_name)
 						} else if vals.Name == markets.Selections[2].Name {
 							alias = "2"
 							outcome_name = "2"
+							fmt.Println("Outcome name is::::", outcome_name)
 						}
 					} else if markets.Name == "Match Result (Excluding Overtime)" {
 						if vals.Name == markets.Selections[0].Name {
