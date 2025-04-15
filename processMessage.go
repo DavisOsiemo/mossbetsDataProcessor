@@ -85,6 +85,7 @@ func processMessage(msg amqp.Delivery, queue chan Odds, maxQueueSize int) {
 	for _, markets := range marketSet.Markets {
 
 		for _, selections := range markets.Selections {
+
 			odds, err := json.Marshal(markets.Selections)
 			if err != nil {
 				fmt.Println("Selections not found")
@@ -101,67 +102,76 @@ func processMessage(msg amqp.Delivery, queue chan Odds, maxQueueSize int) {
 
 				var alias string
 				var outcome_name string
-				var market_name_alias string
-				var market_priority int
 				var alias_priority int
 
-				if markets.Name == "Match Result" { //1x2
+				t, err := time.Parse(time.RFC3339, markets.ExpiryUtc)
+				if err != nil {
+					fmt.Println(err)
+				}
+
+				loc, err := time.LoadLocation("Africa/Nairobi")
+				if err != nil {
+					fmt.Println(err)
+				}
+				mstTime := t.In(loc)
+
+				dateVal := mstTime.Format(time.DateTime)
+
+				if markets.MarketType.Id == 2 {
 					if vals.Name == markets.Selections[0].Name {
 						alias = "1"
-						outcome_name = "1"
+						outcome_name = vals.Name
 					} else if vals.Name == markets.Selections[1].Name {
 						alias = "x"
-						outcome_name = "x"
+						outcome_name = vals.Name
 					} else if vals.Name == markets.Selections[2].Name {
 						alias = "2"
-						outcome_name = "2"
+						outcome_name = vals.Name
 					}
 				} else if markets.Name == "Double Chance" {
 					if vals.Name == markets.Selections[0].Name {
 						alias = "1X"
-						outcome_name = "1X"
+						outcome_name = vals.Name
 					} else if vals.Name == markets.Selections[1].Name {
 						alias = "12"
-						outcome_name = "12"
+						outcome_name = vals.Name
 					} else if vals.Name == markets.Selections[2].Name {
 						alias = "X2"
-						outcome_name = "X2"
+						outcome_name = vals.Name
 					}
-				} else if markets.Name == "Half Time Double Chance" {
+				} else if markets.Name == "Half-time Double Chance" {
 					if vals.Name == markets.Selections[0].Name {
 						alias = "1X"
-						outcome_name = "1X"
+						outcome_name = vals.Name
 					} else if vals.Name == markets.Selections[1].Name {
 						alias = "12"
-						outcome_name = "12"
+						outcome_name = vals.Name
 					} else if vals.Name == markets.Selections[2].Name {
 						alias = "X2"
-						outcome_name = "X2"
+						outcome_name = vals.Name
+
 					}
-				} else if markets.Name == "Half Time Result" {
+				} else if markets.Name == "Half-time Result" {
 					if vals.Name == markets.Selections[0].Name {
 						alias = "1"
-						outcome_name = "1"
-						fmt.Println("Outcome name is::::", outcome_name)
+						outcome_name = vals.Name
 					} else if vals.Name == markets.Selections[1].Name {
 						alias = "x"
-						outcome_name = "x"
-						fmt.Println("Outcome name is::::", outcome_name)
+						outcome_name = vals.Name
 					} else if vals.Name == markets.Selections[2].Name {
 						alias = "2"
-						outcome_name = "2"
-						fmt.Println("Outcome name is::::", outcome_name)
+						outcome_name = vals.Name
 					}
 				} else if markets.Name == "Match Result (Excluding Overtime)" {
 					if vals.Name == markets.Selections[0].Name {
 						alias = "1"
-						outcome_name = "1"
+						outcome_name = vals.Name
 					} else if vals.Name == markets.Selections[1].Name {
 						alias = "x"
-						outcome_name = "x"
+						outcome_name = vals.Name
 					} else if vals.Name == markets.Selections[2].Name {
 						alias = "2"
-						outcome_name = "2"
+						outcome_name = vals.Name
 					}
 				} else if markets.Name == "Both Teams To Score" {
 					if vals.Name == markets.Selections[0].Name {
@@ -171,7 +181,7 @@ func processMessage(msg amqp.Delivery, queue chan Odds, maxQueueSize int) {
 						alias = "N"
 						outcome_name = vals.Name
 					}
-				} else if markets.Name == "Half Time Both Teams To Score" {
+				} else if markets.Name == "Half-time Both Teams To Score" {
 					if vals.Name == markets.Selections[0].Name {
 						alias = "Y"
 						outcome_name = vals.Name
@@ -348,44 +358,6 @@ func processMessage(msg amqp.Delivery, queue chan Odds, maxQueueSize int) {
 					outcome_name = vals.Name
 				}
 
-				if markets.Name == "Match Result" {
-					market_name_alias = "1x2"
-				} else {
-					market_name_alias = markets.Name
-				}
-
-				if markets.MarketType.Id == 2 {
-					market_priority = 1000
-				} else if markets.MarketType.Id == 7079 {
-					market_priority = 950
-				} else if markets.MarketType.Id == 7202 {
-					market_priority = 900
-				} else if markets.MarketType.Id == 259 {
-					market_priority = 850
-				} else if markets.MarketType.Id == 105 {
-					market_priority = 800
-				} else if markets.MarketType.Id == 6832 {
-					market_priority = 750
-				} else if markets.MarketType.Id == 7076 {
-					market_priority = 700
-				} else if markets.MarketType.Id == 295 {
-					market_priority = 650
-				} else if markets.MarketType.Id == 10554 {
-					market_priority = 600
-				} else if markets.MarketType.Id == 253 {
-					market_priority = 550
-				} else if markets.MarketType.Id == 9498 {
-					market_priority = 500
-				} else if markets.MarketType.Id == 9497 {
-					market_priority = 450
-				} else if markets.MarketType.Id == 7086 {
-					market_priority = 400
-				} else if markets.MarketType.Id == 7087 {
-					market_priority = 350
-				} else {
-					market_priority = 10
-				}
-
 				if alias == "1" {
 					alias_priority = 100
 				} else if alias == "x" {
@@ -402,19 +374,6 @@ func processMessage(msg amqp.Delivery, queue chan Odds, maxQueueSize int) {
 					alias_priority = 0
 				}
 
-				t, err := time.Parse(time.RFC3339, markets.ExpiryUtc)
-				if err != nil {
-					fmt.Println(err)
-				}
-
-				loc, err := time.LoadLocation("Africa/Nairobi")
-				if err != nil {
-					fmt.Println(err)
-				}
-				mstTime := t.In(loc)
-
-				dateVal := mstTime.Format(time.DateTime)
-
 				odd := Odds{
 					Outcome_id:        vals.Id,
 					Odd_status:        vals.TradingStatus,
@@ -427,13 +386,12 @@ func processMessage(msg amqp.Delivery, queue chan Odds, maxQueueSize int) {
 					Market_id:         markets.MarketType.Id,
 					Producer_id:       markets.Id,
 					Producer_status:   1,
-					Market_name:       market_name_alias,
+					Market_name:       markets.Name,
 					Time_stamp:        dateVal,
 					Processing_delays: 1,
 					Status:            markets.InPlay,
 					Status_name:       markets.TradingStatus,
 					Alias:             alias,
-					Market_priority:   market_priority,
 					Alias_priority:    alias_priority,
 				}
 
@@ -598,97 +556,4 @@ func insertBatchIntoDBWithUpsert(messages []Odds) error {
 			return fmt.Errorf("max retries reached for batch insert")
 		}
 	}
-}
-
-func insertBatchIntoDB(messages []Odds) error {
-
-	const maxRetries = 6
-	retryCount := 0
-
-	for {
-
-		tx, err := Db.Begin()
-		if err != nil {
-			return fmt.Errorf("error starting transaction: %v", err)
-		}
-		defer tx.Rollback()
-
-		for _, record := range messages {
-
-			query := "SELECT COUNT(*) FROM odds_live WHERE outcome_id = ? AND match_id = ?"
-			var count int
-			err := tx.QueryRow(query, record.Outcome_id, record.Match_id).Scan(&count)
-			if err != nil {
-				return fmt.Errorf("error checking if record exists: %v", err)
-			}
-
-			if count > 0 {
-				updateQuery := `
-					UPDATE odds_live SET odd_status = ?, outcome_name = ?, odds = ?, prevous_odds = ?, direction = ?,
-					producer_name = ?, market_id = ?, producer_id = ?, producer_status = ?, market_name = ?, time_stamp = ?,
-					processing_delays = ?, status = ?, status_name = ?, alias = ?, market_priority = ?,
-					alias_priority = ? WHERE outcome_id = ? AND match_id = ?`
-
-				updateStartTime := time.Now()
-
-				_, err = tx.Exec(updateQuery, record.Odd_status, record.Outcome_name, record.Odds, record.Prevous_odds, record.Direction,
-					record.Producer_name, record.Market_id, record.Producer_id, record.Producer_status, record.Market_name,
-					record.Time_stamp, record.Processing_delays, record.Status, record.Status_name, record.Alias,
-					record.Market_priority, record.Alias_priority, record.Outcome_id, record.Match_id)
-				if err != nil {
-					if isDeadlockError(err) && retryCount < maxRetries {
-						retryCount++
-						tx.Rollback() // Rollback and retry
-						break
-					}
-					return fmt.Errorf("error updating record with outcome_id %d and match_id %d: %v", record.Outcome_id, record.Match_id, err)
-				}
-
-				updateEndTime := time.Now()
-				updateDuration := updateEndTime.Sub(updateStartTime)
-				log.Printf("UPDATE query duration for outcome_id %d, match_id %d: %v", record.Outcome_id, record.Match_id, updateDuration)
-
-			} else {
-
-				insertQuery := `
-					INSERT INTO odds_live (outcome_id, odd_status, outcome_name, match_id, odds, prevous_odds, direction, 
-						producer_name, market_id, producer_id, producer_status, market_name, time_stamp, processing_delays, 
-						status, status_name, alias, market_priority, alias_priority)
-					VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-
-				insertStartTime := time.Now()
-
-				_, err = tx.Exec(insertQuery, record.Outcome_id, record.Odd_status, record.Outcome_name, record.Match_id,
-					record.Odds, record.Prevous_odds, record.Direction, record.Producer_name, record.Market_id,
-					record.Producer_id, record.Producer_status, record.Market_name, record.Time_stamp, record.Processing_delays,
-					record.Status, record.Status_name, record.Alias, record.Market_priority, record.Alias_priority)
-				if err != nil {
-					if isDeadlockError(err) && retryCount < maxRetries {
-						retryCount++
-						tx.Rollback() // Rollback and retry
-						break
-					}
-					return fmt.Errorf("error inserting record with outcome_id %d and match_id %d: %v", record.Outcome_id, record.Match_id, err)
-				}
-
-				insertEndTime := time.Now()
-				insertDuration := insertEndTime.Sub(insertStartTime)
-				log.Printf("INSERT query duration for outcome_id %d, match_id %d: %v", record.Outcome_id, record.Match_id, insertDuration)
-
-			}
-		}
-
-		// If retrying due to deadlock, continue the loop and retry the transaction
-		if retryCount > 0 {
-			continue
-		}
-
-		// Commit the transaction if no deadlocks occurred or retry limit exceeded
-		if err := tx.Commit(); err != nil {
-			return fmt.Errorf("error committing transaction: %v", err)
-		}
-
-		break
-	}
-	return nil
 }

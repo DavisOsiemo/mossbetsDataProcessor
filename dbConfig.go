@@ -37,7 +37,6 @@ func MysqlDbConnect() *sql.DB {
 		AllowNativePasswords: true,
 	}
 
-	// Get a database handle
 	var err error
 
 	Db, err = sql.Open("mysql", cfg.FormatDSN())
@@ -45,9 +44,9 @@ func MysqlDbConnect() *sql.DB {
 		fmt.Println(err.Error())
 	}
 
-	Db.SetMaxOpenConns(50)                  // Maximum number of open connections
-	Db.SetMaxIdleConns(2)                   // Maximum number of idle connections
-	Db.SetConnMaxLifetime(20 * time.Minute) // Connection lifetime (0 means no limit)
+	Db.SetMaxOpenConns(50)
+	Db.SetMaxIdleConns(2)
+	Db.SetConnMaxLifetime(20 * time.Minute)
 
 	pingErr := Db.Ping()
 	if pingErr != nil {
