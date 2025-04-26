@@ -82,6 +82,15 @@ func processMessage(msg amqp.Delivery, queue chan Odds, maxQueueSize int) {
 
 	startTime := time.Now()
 
+	aliasPriorityMap := map[string]int{
+		"1":  100,
+		"x":  70,
+		"2":  40,
+		"1X": 38,
+		"12": 35,
+		"X2": 32,
+	}
+
 	for _, markets := range marketSet.Markets {
 
 		for _, selections := range markets.Selections {
@@ -101,6 +110,7 @@ func processMessage(msg amqp.Delivery, queue chan Odds, maxQueueSize int) {
 			for _, vals := range unmarshalselections {
 
 				var alias string
+				var marketNameAlias string
 				var outcome_name string
 				var alias_priority int
 
@@ -117,7 +127,14 @@ func processMessage(msg amqp.Delivery, queue chan Odds, maxQueueSize int) {
 
 				dateVal := mstTime.Format(time.DateTime)
 
-				if markets.MarketType.Id == 2 {
+				switch markets.MarketType.Id {
+				case 2:
+					marketNameAlias = "1x2"
+				default:
+					marketNameAlias = markets.Name
+				}
+
+				if markets.Name == "Match Result" {
 					if vals.Name == markets.Selections[0].Name {
 						alias = "1"
 						outcome_name = vals.Name
@@ -358,20 +375,9 @@ func processMessage(msg amqp.Delivery, queue chan Odds, maxQueueSize int) {
 					outcome_name = vals.Name
 				}
 
-				if alias == "1" {
-					alias_priority = 100
-				} else if alias == "x" {
-					alias_priority = 70
-				} else if alias == "2" {
-					alias_priority = 40
-				} else if alias == "1X" {
-					alias_priority = 38
-				} else if alias == "12" {
-					alias_priority = 35
-				} else if alias == "X2" {
-					alias_priority = 32
-				} else {
-					alias_priority = 0
+				alias_priority, exists := aliasPriorityMap[alias]
+				if !exists {
+					alias_priority = 0 // Default priority if alias is not found in the map
 				}
 
 				odd := Odds{
@@ -386,7 +392,7 @@ func processMessage(msg amqp.Delivery, queue chan Odds, maxQueueSize int) {
 					Market_id:         markets.MarketType.Id,
 					Producer_id:       markets.Id,
 					Producer_status:   1,
-					Market_name:       markets.Name,
+					Market_name:       marketNameAlias,
 					Time_stamp:        dateVal,
 					Processing_delays: 1,
 					Status:            markets.InPlay,
