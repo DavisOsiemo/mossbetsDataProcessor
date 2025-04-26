@@ -134,250 +134,152 @@ func processMessage(msg amqp.Delivery, queue chan Odds, maxQueueSize int) {
 					marketNameAlias = markets.Name
 				}
 
-				if markets.Name == "Match Result" {
-					if vals.Name == markets.Selections[0].Name {
+				switch markets.Name {
+				case
+					"Match Result":
+					switch vals.Name {
+					case markets.Selections[0].Name:
 						alias = "1"
 						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[1].Name {
+					case markets.Selections[1].Name:
 						alias = "x"
 						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[2].Name {
+					case markets.Selections[2].Name:
 						alias = "2"
 						outcome_name = vals.Name
 					}
-				} else if markets.Name == "Double Chance" {
-					if vals.Name == markets.Selections[0].Name {
-						alias = "1X"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[1].Name {
-						alias = "12"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[2].Name {
-						alias = "X2"
-						outcome_name = vals.Name
-					}
-				} else if markets.Name == "Half-time Double Chance" {
-					if vals.Name == markets.Selections[0].Name {
-						alias = "1X"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[1].Name {
-						alias = "12"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[2].Name {
-						alias = "X2"
-						outcome_name = vals.Name
 
+				case
+					"Double Chance":
+					switch vals.Name {
+					case markets.Selections[0].Name:
+						alias = "1X"
+						outcome_name = vals.Name
+					case markets.Selections[1].Name:
+						alias = "12"
+						outcome_name = vals.Name
+					case markets.Selections[2].Name:
+						alias = "X2"
+						outcome_name = vals.Name
 					}
-				} else if markets.Name == "Half-time Result" {
-					if vals.Name == markets.Selections[0].Name {
+
+				case
+					"Half-time Double Chance":
+					switch vals.Name {
+					case markets.Selections[0].Name:
+						alias = "1X"
+						outcome_name = vals.Name
+					case markets.Selections[1].Name:
+						alias = "12"
+						outcome_name = vals.Name
+					case markets.Selections[2].Name:
+						alias = "X2"
+						outcome_name = vals.Name
+					}
+
+				case
+					"Half-time Result":
+					switch vals.Name {
+					case markets.Selections[0].Name:
 						alias = "1"
 						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[1].Name {
+					case markets.Selections[1].Name:
 						alias = "x"
 						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[2].Name {
+					case markets.Selections[2].Name:
 						alias = "2"
 						outcome_name = vals.Name
 					}
-				} else if markets.Name == "Match Result (Excluding Overtime)" {
-					if vals.Name == markets.Selections[0].Name {
+
+				case
+					"Match Result (Excluding Overtime)":
+					switch vals.Name {
+					case markets.Selections[0].Name:
 						alias = "1"
 						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[1].Name {
+					case markets.Selections[1].Name:
 						alias = "x"
 						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[2].Name {
+					case markets.Selections[2].Name:
 						alias = "2"
 						outcome_name = vals.Name
 					}
-				} else if markets.Name == "Both Teams To Score" {
-					if vals.Name == markets.Selections[0].Name {
+
+				case
+					"Both Teams To Score":
+					switch vals.Name {
+					case markets.Selections[0].Name:
 						alias = "Y"
 						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[1].Name {
+					case markets.Selections[1].Name:
 						alias = "N"
 						outcome_name = vals.Name
 					}
-				} else if markets.Name == "Half-time Both Teams To Score" {
-					if vals.Name == markets.Selections[0].Name {
+
+				case
+					"Half-time Both Teams To Score":
+					switch vals.Name {
+					case markets.Selections[0].Name:
 						alias = "Y"
 						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[1].Name {
+					case markets.Selections[1].Name:
 						alias = "N"
 						outcome_name = vals.Name
 					}
-				} else if markets.Name == "Total Goals Over / Under 1.50" {
-					if vals.Name == markets.Selections[0].Name {
+
+				case
+					"Total Goals Over / Under 1.50",
+					"Total Goals Over / Under 2.50",
+					"Total Goals Over / Under 3.50",
+					"Total Goals Over / Under 4.50",
+					"Total Goals Over / Under 5.50",
+					"Half Time Total Goals Over / Under 1.50",
+					"Half Time Total Goals Over / Under 2.50",
+					"Half Time Total Goals Over / Under 3.50":
+					switch vals.Name {
+					case markets.Selections[0].Name:
 						alias = "O"
 						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[1].Name {
+					case markets.Selections[1].Name:
 						alias = "U"
 						outcome_name = vals.Name
 					}
-				} else if markets.Name == "Total Goals Over / Under 2.50" {
-					if vals.Name == markets.Selections[0].Name {
-						alias = "O"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[1].Name {
-						alias = "U"
-						outcome_name = vals.Name
-					}
-				} else if markets.Name == "Total Goals Over / Under 3.50" {
-					if vals.Name == markets.Selections[0].Name {
-						alias = "O"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[1].Name {
-						alias = "U"
-						outcome_name = vals.Name
-					}
-				} else if markets.Name == "Total Goals Over / Under 4.50" {
-					if vals.Name == markets.Selections[0].Name {
-						alias = "O"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[1].Name {
-						alias = "U"
-						outcome_name = vals.Name
-					}
-				} else if markets.Name == "Total Goals Over / Under 5.50" {
-					if vals.Name == markets.Selections[0].Name {
-						alias = "O"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[1].Name {
-						alias = "U"
-						outcome_name = vals.Name
-					}
-				} else if markets.Name == "Half Time Total Goals Over / Under 1.50" {
-					if vals.Name == markets.Selections[0].Name {
-						alias = "O"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[1].Name {
-						alias = "U"
-						outcome_name = vals.Name
-					}
-				} else if markets.Name == "Half Time Total Goals Over / Under 2.50" {
-					if vals.Name == markets.Selections[0].Name {
-						alias = "O"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[1].Name {
-						alias = "U"
-						outcome_name = vals.Name
-					}
-				} else if markets.Name == "Half Time Total Goals Over / Under 3.50" {
-					if vals.Name == markets.Selections[0].Name {
-						alias = "O"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[1].Name {
-						alias = "U"
-						outcome_name = vals.Name
-					}
-				} else if markets.Name == "Match Result and Total Goals Over / Under 1.50" {
-					if vals.Name == markets.Selections[0].Name {
+
+				case
+					"Match Result and Total Goals Over / Under 1.50",
+					"Match Result and Total Goals Over / Under 2.50",
+					"Match Result and Total Goals Over / Under 3.50",
+					"Match Result and Total Goals Over / Under 4.50",
+					"Match Result and Total Goals Over / Under 5.50":
+					switch vals.Name {
+					case markets.Selections[0].Name:
 						alias = "1O"
 						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[1].Name {
+					case markets.Selections[1].Name:
 						alias = "1U"
 						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[2].Name {
+					case markets.Selections[2].Name:
 						alias = "XO"
 						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[3].Name {
+					case markets.Selections[3].Name:
 						alias = "XU"
 						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[4].Name {
+					case markets.Selections[4].Name:
 						alias = "2O"
 						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[5].Name {
+					case markets.Selections[5].Name:
 						alias = "2U"
 						outcome_name = vals.Name
 					}
-				} else if markets.Name == "Match Result and Total Goals Over / Under 2.50" {
-					if vals.Name == markets.Selections[0].Name {
-						alias = "1O"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[1].Name {
-						alias = "1U"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[2].Name {
-						alias = "XO"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[3].Name {
-						alias = "XU"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[4].Name {
-						alias = "2O"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[5].Name {
-						alias = "2U"
-						outcome_name = vals.Name
-					}
-				} else if markets.Name == "Match Result and Total Goals Over / Under 3.50" {
-					if vals.Name == markets.Selections[0].Name {
-						alias = "1O"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[1].Name {
-						alias = "1U"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[2].Name {
-						alias = "XO"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[3].Name {
-						alias = "XU"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[4].Name {
-						alias = "2O"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[5].Name {
-						alias = "2U"
-						outcome_name = vals.Name
-					}
-				} else if markets.Name == "Match Result and Total Goals Over / Under 4.50" {
-					if vals.Name == markets.Selections[0].Name {
-						alias = "1O"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[1].Name {
-						alias = "1U"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[2].Name {
-						alias = "XO"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[3].Name {
-						alias = "XU"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[4].Name {
-						alias = "2O"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[5].Name {
-						alias = "2U"
-						outcome_name = vals.Name
-					}
-				} else if markets.Name == "Match Result and Total Goals Over / Under 5.50" {
-					if vals.Name == markets.Selections[0].Name {
-						alias = "1O"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[1].Name {
-						alias = "1U"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[2].Name {
-						alias = "XO"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[3].Name {
-						alias = "XU"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[4].Name {
-						alias = "2O"
-						outcome_name = vals.Name
-					} else if vals.Name == markets.Selections[5].Name {
-						alias = "2U"
-						outcome_name = vals.Name
-					}
-				} else {
+
+				default:
 					alias = vals.Name
 					outcome_name = vals.Name
 				}
 
 				alias_priority, exists := aliasPriorityMap[alias]
 				if !exists {
-					alias_priority = 0 // Default priority if alias is not found in the map
+					alias_priority = 0
 				}
 
 				odd := Odds{
