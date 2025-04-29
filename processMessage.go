@@ -137,18 +137,19 @@ func processMessage(msg amqp.Delivery, queue chan Odds, maxQueueSize int) {
 				switch markets.Name {
 				case
 					"Match Result":
-					switch vals.Name {
-					case markets.Selections[0].Name:
-						alias = "1"
-						outcome_name = vals.Name
-					case markets.Selections[1].Name:
-						alias = "x"
-						outcome_name = vals.Name
-					case markets.Selections[2].Name:
-						alias = "2"
-						outcome_name = vals.Name
+					if markets.MarketType.Id == 2 {
+						switch vals.Name {
+						case markets.Selections[0].Name:
+							alias = "1"
+							outcome_name = vals.Name
+						case markets.Selections[1].Name:
+							alias = "x"
+							outcome_name = vals.Name
+						case markets.Selections[2].Name:
+							alias = "2"
+							outcome_name = vals.Name
+						}
 					}
-
 				case
 					"Double Chance":
 					switch vals.Name {
