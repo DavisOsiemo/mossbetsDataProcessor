@@ -130,6 +130,12 @@ func processMessage(msg amqp.Delivery, queue chan Odds, maxQueueSize int) {
 				switch markets.MarketType.Id {
 				case 2:
 					marketNameAlias = "1x2"
+				default:
+					marketNameAlias = markets.Name
+				}
+
+				switch markets.MarketType.Id {
+				case 2:
 					switch vals.Name {
 					case markets.Selections[0].Name:
 						alias = "1"
