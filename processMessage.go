@@ -130,13 +130,6 @@ func processMessage(msg amqp.Delivery, queue chan Odds, maxQueueSize int) {
 				switch markets.MarketType.Id {
 				case 2:
 					marketNameAlias = "1x2"
-				default:
-					marketNameAlias = markets.Name
-				}
-
-				switch markets.Name {
-				case
-					"Match Result":
 					switch vals.Name {
 					case markets.Selections[0].Name:
 						alias = "1"
@@ -148,7 +141,11 @@ func processMessage(msg amqp.Delivery, queue chan Odds, maxQueueSize int) {
 						alias = "2"
 						outcome_name = vals.Name
 					}
+				default:
+					marketNameAlias = markets.Name
+				}
 
+				switch markets.Name {
 				case
 					"Double Chance":
 					switch vals.Name {
