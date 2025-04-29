@@ -149,6 +149,9 @@ func processMessage(msg amqp.Delivery, queue chan Odds, maxQueueSize int) {
 							alias = "2"
 							outcome_name = vals.Name
 						}
+					} else {
+						alias = vals.Name
+						outcome_name = vals.Name
 					}
 				case
 					"Double Chance":
