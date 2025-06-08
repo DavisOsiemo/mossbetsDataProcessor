@@ -70,7 +70,7 @@ func main() {
 	err = ch.Qos(
 		100,
 		0,
-		false, // Per channel
+		false,
 	)
 	if err != nil {
 		fmt.Println("Failed to set QoS: ", err.Error())

@@ -311,7 +311,6 @@ func processMessage(msg amqp.Delivery, queue chan Odds, maxQueueSize int) {
 				case queue <- odd:
 					messagesEnqueued++
 				default: //If queue is full, drop the message. Slows down the rate at which messages are consumed
-					// Backpressure
 					if len(queue) > maxQueueSize*3/4 && len(queue) < maxQueueSize {
 						log.Warn().Msgf("Queue is more than 75%% full (current size: %d), slowing down message consumption.", len(queue))
 						time.Sleep(200 * time.Millisecond) // More delay if the queue is mostly full
@@ -388,6 +387,7 @@ func worker(queue chan Odds, workerID int, batchSize int) {
 }
 
 func insertBatchIntoDBWithUpsert(messages []Odds) error {
+
 	const maxRetries = 6
 	retryCount := 0
 
