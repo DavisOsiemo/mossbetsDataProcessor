@@ -40,7 +40,8 @@ func main() {
 
 	MysqlDbConnect()
 
-	conn, err := amqp.Dial(os.Getenv("DB_RABBITMQ"))
+	//conn, err := amqp.Dial(os.Getenv("DB_RABBITMQ"))
+    conn, err := amqp.Dial("amqp://liden:lID3n@rabbitmq-cluster-1-vm:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
