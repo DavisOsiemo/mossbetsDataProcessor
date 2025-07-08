@@ -44,7 +44,7 @@ func main() {
 
 	// conn, err := amqp.Dial("amqp://liden:lID3n@rabbitmq-cluster-1-vm:5672/")
 	conn, err := amqp.Dial("amqp://liden:lID3n@10.132.0.38:5672/")
-	
+
     // conn, err := amqp.Dial("amqp://liden:lID3n@10.132.0.28:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
@@ -52,6 +52,16 @@ func main() {
 	ch, err := conn.Channel()
 	failOnError(err, "Failed to open a channel")
 	defer ch.Close()
+
+	q, err := ch.QueueDeclare(
+		"MARKETS_QUEUE", 
+		true,                // durable
+		false,               // delete when unused
+		false,               // exclusive
+		false,
+		nil,
+	)
+	failOnError(err, "Failed to declare MARKETS_QUEUE_API")
 
 	err = ch.ExchangeDeclare(
 		"MARKETS_EXCHANGE",
