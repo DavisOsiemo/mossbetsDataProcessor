@@ -53,16 +53,6 @@ func main() {
 	failOnError(err, "Failed to open a channel")
 	defer ch.Close()
 
-	q, err := ch.QueueDeclare(
-		"MARKETS_QUEUE", 
-		true,                // durable
-		false,               // delete when unused
-		false,               // exclusive
-		false,
-		nil,
-	)
-	failOnError(err, "Failed to declare MARKETS_QUEUE_API")
-
 	err = ch.ExchangeDeclare(
 		"MARKETS_EXCHANGE",
 		"direct",
@@ -73,6 +63,17 @@ func main() {
 		nil,
 	)
 	failOnError(err, "Failed to declare an exchange: MARKETS_EXCHANGE")
+
+	_, err = ch.QueueDeclare(
+	"MARKETS_QUEUE", // name
+	true,            // durable
+	false,           // delete when unused
+	false,           // exclusive
+	false,           // no-wait
+	nil,             // arguments
+	)
+	failOnError(err, "Failed to declare queue: MARKETS_QUEUE")
+
 
 	err = ch.QueueBind(
 		"MARKETS_QUEUE",
