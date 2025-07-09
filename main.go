@@ -44,10 +44,10 @@ func main() {
 
 	// conn, err := amqp.Dial("amqp://liden:lID3n@rabbitmq-cluster-1-vm:5672/")
 	// conn, err := amqp.Dial("amqp://liden:lID3n@10.132.0.38:5672/")
-	conn, err := amqp.Dial("amqp://rabbit:NsbMM8N86qar@35.233.122.121:5672/")
+	// conn, err := amqp.Dial("amqp://rabbit:NsbMM8N86qar@35.233.122.121:5672/")
+	conn, err := amqp.Dial("amqp://rabbit:NsbMM8N86qar@rabbitmq-1-rabbitmq-discovery.rabbitmq-staging.svc.cluster.local:5672/")
 
-
-    // conn, err := amqp.Dial("amqp://liden:lID3n@10.132.0.28:5672/")
+	// conn, err := amqp.Dial("amqp://liden:lID3n@10.132.0.28:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
@@ -67,12 +67,12 @@ func main() {
 	failOnError(err, "Failed to declare an exchange: MARKETS_EXCHANGE")
 
 	_, err = ch.QueueDeclare(
-	"MARKETS_QUEUE", // name
-	true,            // durable
-	false,           // delete when unused
-	false,           // exclusive
-	false,           // no-wait
-	nil,             // arguments
+		"MARKETS_QUEUE", // name
+		true,            // durable
+		false,           // delete when unused
+		false,           // exclusive
+		false,           // no-wait
+		nil,             // arguments
 	)
 	failOnError(err, "Failed to declare queue: MARKETS_QUEUE")
 
